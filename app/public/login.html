@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Log in</title>
+<style>
+.error {
+	color: red;
+}
+</style>
+</head>
+<body>
+
+<h1>My cool site</h1>
+
+<h2>Log in</h2>
+
+<table>
+	<tr>
+		<td><label name="username" for="username">Username:</label></td>
+		<td><input type="text" id="username"></td>
+	</tr>
+	<tr>
+		<td><label name="password" for="password">Password:</label></td>
+		<td><input type="password" id="password"></td>
+	</tr>
+</table>
+
+<button id="login">Log in</button>
+
+<div id="result">&nbsp;</div>
+
+<p>Need an account? Create an account <a href="create.html">here</a>.</p>
+
+<script>
+let usernameInput = document.getElementById("username");
+let passwordInput = document.getElementById("password");
+let result = document.getElementById("result");
+
+document.getElementById("login").addEventListener("click", () => {
+	fetch("/signin", {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json"
+		},
+		body: JSON.stringify({
+			username: usernameInput.value,
+			plaintextPassword: passwordInput.value,
+		})
+	}).then((response) => {
+		if (response.status === 200) {
+			result.textContent = "Login successful";
+			result.classList.remove("error");
+		} else {
+			result.textContent = "Login failed";
+			result.classList.add("error");
+		}
+	});
+});
+</script>
+
+</body>
+</html>
