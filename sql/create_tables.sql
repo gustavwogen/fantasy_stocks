@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS portfolios (
     portfolio_id SERIAL PRIMARY KEY,
-    user_id VARCHAR(20) NOT NULL UNIQUE,
+    user_id INT NOT NULL UNIQUE,
     name VARCHAR(50) NOT NULL,
     cash NUMERIC DEFAULT 100000,
     created_at timestamp without time zone default (now() at time zone 'utc')
@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS portfolios (
 
 CREATE TABLE IF NOT EXISTS orders (
     order_id SERIAL PRIMARY KEY,
-    portfolio_id VARCHAR(25) NOT NULL,
+    portfolio_id INT NOT NULL,
     order_type VARCHAR(20) NOT NULL,
     symbol VARCHAR(20) NOT NULL,
     quantity INT NOT NULL,
