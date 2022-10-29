@@ -18,15 +18,33 @@ pool.connect().then(() => {
 // https://github.com/kelektiv/node.bcrypt.js#a-note-on-rounds
 let saltRounds = 10;
 
+function check_if_username_is_unique(username) {
+    pool
+        .query("select * from users where username = $1", [username])
+        .then((result) => {
+            if (result.rows.length > 0) {
+                return true;
+            }
+        })
+        .catch((err) => {
+            // query failed
+            console.log(err);
+            res.status(500).send();
+        });
+    return false;
+};
+
 app.post("/signup", (req, res) => {
     let username = req.body.username;
     let plaintextPassword = req.body.plaintextPassword;
+    console.log("username " + username);
+    console.log("password " + plaintextPassword);
 
     bcrypt
         .hash(plaintextPassword, saltRounds)
         .then((hashedPassword) => {
             pool.query(
-                "INSERT INTO users (username, hashed_password) VALUES ($1, $2)",
+                "INSERT INTO users (username, password) VALUES ($1, $2)",
                 [username, hashedPassword]
             )
                 .then(() => {
@@ -36,8 +54,10 @@ app.post("/signup", (req, res) => {
                 })
                 .catch((error) => {
                     // insert failed
-                    console.log(error);
-                    res.status(500).send();
+                    if (error.detail === `Key (username)=(${username}) already exists.`) {
+                        return res.status(401).send("Username is already taken.");
+                    }
+                    return res.status(500).send("Account creation failed");
                 });
         })
         .catch((error) => {
@@ -50,7 +70,7 @@ app.post("/signup", (req, res) => {
 app.post("/signin", (req, res) => {
     let username = req.body.username;
     let plaintextPassword = req.body.plaintextPassword;
-    pool.query("SELECT hashed_password FROM users WHERE username = $1", [
+    pool.query("SELECT password FROM users WHERE username = $1", [
         username,
     ])
         .then((result) => {
@@ -58,7 +78,7 @@ app.post("/signin", (req, res) => {
                 // username doesn't exist
                 return res.status(401).send();
             }
-            let hashedPassword = result.rows[0].hashed_password;
+            let hashedPassword = result.rows[0].password;
             bcrypt
                 .compare(plaintextPassword, hashedPassword)
                 .then((passwordMatched) => {
