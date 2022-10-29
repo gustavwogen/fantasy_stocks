@@ -26,7 +26,7 @@ app.post("/signup", (req, res) => {
         .hash(plaintextPassword, saltRounds)
         .then((hashedPassword) => {
             pool.query(
-                "INSERT INTO users (username, hashed_password) VALUES ($1, $2)",
+                "INSERT INTO users (username, password) VALUES ($1, $2)",
                 [username, hashedPassword]
             )
                 .then(() => {
@@ -36,8 +36,10 @@ app.post("/signup", (req, res) => {
                 })
                 .catch((error) => {
                     // insert failed
-                    console.log(error);
-                    res.status(500).send();
+                    if (error.detail === `Key (username)=(${username}) already exists.`) {
+                        return res.status(401).send("Username is already taken.");
+                    }
+                    return res.status(500).send("Account creation failed");
                 });
         })
         .catch((error) => {
@@ -50,7 +52,7 @@ app.post("/signup", (req, res) => {
 app.post("/signin", (req, res) => {
     let username = req.body.username;
     let plaintextPassword = req.body.plaintextPassword;
-    pool.query("SELECT hashed_password FROM users WHERE username = $1", [
+    pool.query("SELECT password FROM users WHERE username = $1", [
         username,
     ])
         .then((result) => {
@@ -58,7 +60,7 @@ app.post("/signin", (req, res) => {
                 // username doesn't exist
                 return res.status(401).send();
             }
-            let hashedPassword = result.rows[0].hashed_password;
+            let hashedPassword = result.rows[0].password;
             bcrypt
                 .compare(plaintextPassword, hashedPassword)
                 .then((passwordMatched) => {

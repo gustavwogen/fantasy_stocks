@@ -6,7 +6,7 @@ DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS portfolios;
 DROP TABLE IF EXISTS orders;
 
-CREATE TABLE IF NOT EXISTS users (
+CREATE TABLE users (
     user_id SERIAL PRIMARY KEY,
     username VARCHAR(25) NOT NULL UNIQUE,
     password CHAR(60) NOT NULL,
@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS users (
     created_at timestamp without time zone default (now() at time zone 'utc')
 );
 
-CREATE TABLE IF NOT EXISTS portfolios (
+CREATE TABLE portfolios (
     portfolio_id SERIAL PRIMARY KEY,
     user_id INT NOT NULL UNIQUE,
     name VARCHAR(50) NOT NULL,
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS portfolios (
     created_at timestamp without time zone default (now() at time zone 'utc')
 );
 
-CREATE TABLE IF NOT EXISTS orders (
+CREATE TABLE orders (
     order_id SERIAL PRIMARY KEY,
     portfolio_id INT NOT NULL,
     order_type VARCHAR(20) NOT NULL,
