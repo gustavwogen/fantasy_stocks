@@ -18,27 +18,9 @@ pool.connect().then(() => {
 // https://github.com/kelektiv/node.bcrypt.js#a-note-on-rounds
 let saltRounds = 10;
 
-function check_if_username_is_unique(username) {
-    pool
-        .query("select * from users where username = $1", [username])
-        .then((result) => {
-            if (result.rows.length > 0) {
-                return true;
-            }
-        })
-        .catch((err) => {
-            // query failed
-            console.log(err);
-            res.status(500).send();
-        });
-    return false;
-};
-
 app.post("/signup", (req, res) => {
     let username = req.body.username;
     let plaintextPassword = req.body.plaintextPassword;
-    console.log("username " + username);
-    console.log("password " + plaintextPassword);
 
     bcrypt
         .hash(plaintextPassword, saltRounds)
