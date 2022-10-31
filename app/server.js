@@ -23,13 +23,14 @@ let saltRounds = 10;
 app.post("/signup", (req, res) => {
     let username = req.body.username;
     let plaintextPassword = req.body.plaintextPassword;
+    let email = req.body.email;
 
     bcrypt
         .hash(plaintextPassword, saltRounds)
         .then((hashedPassword) => {
             pool.query(
-                "INSERT INTO users (username, password) VALUES ($1, $2)",
-                [username, hashedPassword]
+                "INSERT INTO users (username, password, email) VALUES ($1, $2, $3)",
+                [username, hashedPassword, email]
             )
                 .then(() => {
                     // account created
@@ -85,21 +86,6 @@ app.post("/signin", (req, res) => {
         });
 });
 
-// Don't do this
-
-/*
-app.post("/vulnerable", (req, res) => {
-    let userValue = req.body.userValue;
-    // no parameterized query used - bad:
-    let myQuery = `SELECT * FROM users WHERE username = ${userValue}`;
-    pool.query(myQuery).then((result) => {
-        console.log(result.rows);
-    }).catch((error) => {
-        console.log(error);
-    });
-    res.send();
-});
-*/
 
 app.listen(port, hostname, () => {
     console.log(`http://${hostname}:${port}`);
