@@ -1,6 +1,8 @@
 let express = require("express");
 let { Pool } = require("pg");
 let bcrypt = require("bcrypt");
+
+// Any way to get around this?
 let env = require("../env.json");
 
 let hostname = "localhost";
@@ -83,6 +85,8 @@ app.post("/signin", (req, res) => {
         });
 });
 
+// Don't do this
+
 /*
 app.post("/vulnerable", (req, res) => {
     let userValue = req.body.userValue;
@@ -100,9 +104,3 @@ app.post("/vulnerable", (req, res) => {
 app.listen(port, hostname, () => {
     console.log(`http://${hostname}:${port}`);
 });
-
-/*
-
-WRITE YOUR ANSWERS HERE
-
-*/
