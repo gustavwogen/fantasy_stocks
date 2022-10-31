@@ -23,13 +23,14 @@ let saltRounds = 10;
 app.post("/signup", (req, res) => {
     let username = req.body.username;
     let plaintextPassword = req.body.plaintextPassword;
+    let email = req.body.email;
 
     bcrypt
         .hash(plaintextPassword, saltRounds)
         .then((hashedPassword) => {
             pool.query(
-                "INSERT INTO users (username, password) VALUES ($1, $2)",
-                [username, hashedPassword]
+                "INSERT INTO users (username, password, email) VALUES ($1, $2, $3)",
+                [username, hashedPassword, email]
             )
                 .then(() => {
                     // account created

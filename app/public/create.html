@@ -21,6 +21,10 @@
 		<td><input type="text" id="username"></td>
 	</tr>
 	<tr>
+		<td><label name="email" for="email">E-mail:</label></td>
+		<td><input type="text" id="email"></td>
+	</tr>
+	<tr>
 		<td><label name="password" for="password">Password:</label></td>
 		<td><input type="password" id="password"></td>
 	</tr>
@@ -38,6 +42,7 @@
 
 <script>
 let usernameInput = document.getElementById("username");
+let emailInput = document.getElementById("email");
 let passwordInput = document.getElementById("password");
 let confirm_password = document.getElementById("confirm-password");
 let result = document.getElementById("result");
@@ -55,6 +60,7 @@ document.getElementById("create").addEventListener("click", () => {
 			body: JSON.stringify({
 				username: usernameInput.value,
 				plaintextPassword: passwordInput.value,
+				email: emailInput.value,
 			})
 		}).then((response) => {
 			if (response.status === 200) {
