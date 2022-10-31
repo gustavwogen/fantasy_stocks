@@ -47,9 +47,17 @@ let passwordInput = document.getElementById("password");
 let confirm_password = document.getElementById("confirm-password");
 let result = document.getElementById("result");
 
+function validateEmail(email) {
+  var re = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+  return re.test(email);
+}
+
 document.getElementById("create").addEventListener("click", () => {
 	if (passwordInput.value !== confirm_password.value) {
 		result.textContent = "Passwords do not match."
+		result.classList.add("error");
+	} else if (!(validateEmail(emailInput.value))) {
+		result.textContent = "Invalid Email."
 		result.classList.add("error");
 	} else {
 		fetch("/signup", {

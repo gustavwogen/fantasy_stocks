@@ -86,21 +86,6 @@ app.post("/signin", (req, res) => {
         });
 });
 
-// Don't do this
-
-/*
-app.post("/vulnerable", (req, res) => {
-    let userValue = req.body.userValue;
-    // no parameterized query used - bad:
-    let myQuery = `SELECT * FROM users WHERE username = ${userValue}`;
-    pool.query(myQuery).then((result) => {
-        console.log(result.rows);
-    }).catch((error) => {
-        console.log(error);
-    });
-    res.send();
-});
-*/
 
 app.listen(port, hostname, () => {
     console.log(`http://${hostname}:${port}`);
