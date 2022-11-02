@@ -86,6 +86,10 @@ app.post("/signin", (req, res) => {
         });
 });
 
+app.get("/", (req, res) => {
+    res.redirect('login.html');
+})
+
 
 app.listen(port, hostname, () => {
     console.log(`http://${hostname}:${port}`);
