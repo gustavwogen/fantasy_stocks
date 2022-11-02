@@ -12,6 +12,6 @@
 	- Create necessary database tables for our application
 	- Populate those tables with dummy data
 
-- Run `npm init` to install all packages required
+- Run `npm install` to install all packages required
 
 - Open the env.json file and type in your username and password
