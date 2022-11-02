@@ -11,23 +11,31 @@ CREATE TABLE users (
     username VARCHAR(25) NOT NULL UNIQUE,
     password CHAR(60) NOT NULL,
     email VARCHAR(40),
-    created_at timestamp without time zone default (now() at time zone 'utc')
+    created_at timestamp without time zone default (now() at time zone 'utc') 
 );
 
 CREATE TABLE portfolios (
     portfolio_id SERIAL PRIMARY KEY,
-    user_id INT NOT NULL UNIQUE,
+    user_id INT NOT NULL,
     name VARCHAR(50) NOT NULL,
     cash NUMERIC DEFAULT 100000,
-    created_at timestamp without time zone default (now() at time zone 'utc')
+    created_at timestamp without time zone default (now() at time zone 'utc'),
+    CONSTRAINT fk_user
+      FOREIGN KEY(user_id) 
+        REFERENCES users(user_id)
+        ON DELETE CASCADE
 );
 
 CREATE TABLE orders (
     order_id SERIAL PRIMARY KEY,
-    portfolio_id INT NOT NULL,
+    portfolio_id INT,
     order_type VARCHAR(20) NOT NULL,
     symbol VARCHAR(20) NOT NULL,
     quantity INT NOT NULL,
     unit_price NUMERIC NOT NULL,
-    order_date timestamp without time zone default (now() at time zone 'utc')
+    order_date timestamp without time zone default (now() at time zone 'utc'),
+    CONSTRAINT fk_portfolio
+      FOREIGN KEY(portfolio_id) 
+        REFERENCES portfolios(portfolio_id)
+        ON DELETE SET NULL
 );
