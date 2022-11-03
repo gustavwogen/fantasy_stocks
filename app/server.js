@@ -5,6 +5,8 @@ const crypto = require('crypto');
 let cookieParser = require("cookie-parser");
 let sessions = require('express-session');
 
+const {getQuote} = require('./utils/iex');
+
 // Any way to get around this?
 let env = require("../env.json");
 
@@ -33,7 +35,7 @@ app.use((req, res, next) => {
 
     // Inject the user to the request
     req.user = authTokens[authToken];
-
+    console.log('custom middleware');
     next();
 });
 
@@ -131,8 +133,10 @@ app.post("/signin", (req, res) => {
 
 const requireAuth = (req, res, next) => {
     if (req.user) {
+        console.log('requireAuth logged in');
         next();
     } else {
+        console.log('requireAuth not logged in');
         res.redirect('/user/login');
     }
 };
