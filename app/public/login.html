@@ -30,7 +30,7 @@
 
 <div id="result">&nbsp;</div>
 
-<p>Need an account? Create an account <a href="create.html">here</a>.</p>
+<p>Need an account? Create an account <a href="/user/create">here</a>.</p>
 
 <script>
 let usernameInput = document.getElementById("username");
@@ -46,11 +46,11 @@ document.getElementById("login").addEventListener("click", () => {
 		body: JSON.stringify({
 			username: usernameInput.value,
 			plaintextPassword: passwordInput.value,
-		})
+		},
+		)
 	}).then((response) => {
-		if (response.status === 200) {
-			result.textContent = "Login successful";
-			result.classList.remove("error");
+		if (response.redirected) {
+			window.location = response.url
 		} else {
 			result.textContent = "Login failed";
 			result.classList.add("error");
