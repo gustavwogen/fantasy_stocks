@@ -163,6 +163,34 @@ app.get("/user/create", (req, res) => {
     res.sendFile('public/create.html' , { root : __dirname});
 });
 
+app.get("/portfolio", (req, res) => {
+    pool.query(
+        `SELECT symbol
+            ,sum(CASE 
+                    WHEN order_type = 'BUY'
+                        THEN quantity*unit_price
+                    ELSE 0
+                    END) AS BuyAmount
+            ,sum(CASE 
+                    WHEN order_type = 'SELL'
+                        THEN quantity*unit_price
+                    ELSE 0
+                    END) AS SellAmount
+            ,sum((CASE WHEN order_type = 'BUY' THEN quantity*unit_price ELSE 0 END)
+                -
+                (CASE WHEN order_type = 'SELL' THEN quantity*unit_price ELSE 0 END))
+                as total
+            ,sum((CASE WHEN order_type = 'BUY' THEN quantity ELSE 0 END)
+                -
+                (CASE WHEN order_type = 'SELL' THEN quantity ELSE 0 END))
+                as quantity
+        FROM orders
+        GROUP BY symbol
+        ORDER BY symbol;`
+    ).then(result => {
+        return res.json({"rows": result.rows});
+    });
+})
 
 app.listen(port, hostname, () => {
     console.log(`http://${hostname}:${port}`);
