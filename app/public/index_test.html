@@ -38,8 +38,6 @@ let dollarUS = Intl.NumberFormat("en-US", {
     currency: "USD",
 });
 
-let buyButton = document.getElementById("buy");
-let sellButton = document.getElementById("sell");
 let container = document.getElementById("portfolio");
 
 let url = `/portfolio`
@@ -72,6 +70,19 @@ fetch(url).then((response) => {
         }).catch(error =>  {
             message.textContent = "Something went wrong";
         });            
+    } else {
+        message.textContent = "not status 200";   
+    }
+}).catch(error =>  {
+        message.textContent = "Something went wrong";
+})
+
+let url2 = `/quote?symbol=AAPL`
+fetch(url2).then((response) => {
+    if (response.status === 200) {
+        response.json().then(body => {
+            console.log(body);
+        });
     } else {
         message.textContent = "not status 200";   
     }
