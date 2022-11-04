@@ -33,6 +33,11 @@
     <div id="message"></div>
 <script>
 
+let dollarUS = Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+});
+
 let buyButton = document.getElementById("buy");
 let sellButton = document.getElementById("sell");
 let container = document.getElementById("portfolio");
@@ -52,7 +57,7 @@ fetch(url).then((response) => {
                 quantity.textContent = body.rows[i].quantity;
                 row.append(quantity);
                 daily = document.createElement('td');
-                daily.textContent = body.rows[i].total;
+                daily.textContent = dollarUS.format(body.rows[i].total);
                 row.append(daily);
                 weekly = document.createElement('td');
                 weekly.textContent = "%xx";
