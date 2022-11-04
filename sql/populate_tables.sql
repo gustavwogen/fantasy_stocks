@@ -52,7 +52,11 @@ VALUES (2, 'BUY', 'SQ', 4, 150.4);
 INSERT INTO orders (portfolio_id, order_type, symbol, quantity, unit_price)
 VALUES (2, 'BUY', 'TWTR', 4, 50.4);
 
+INSERT INTO orders (portfolio_id, order_type, symbol, quantity, unit_price)
+VALUES (1, 'BUY', 'AAPL', 3, 157.23);
 
+INSERT INTO orders (portfolio_id, order_type, symbol, quantity, unit_price)
+VALUES (2, 'BUY', 'TWTR', 4, 50.4);
 
 
 
