@@ -192,6 +192,15 @@ app.get("/portfolio", (req, res) => {
     });
 })
 
+
+app.get("/quote", (req, res) => {
+    let symbol = req.query.symbol;
+    console.log(symbol);
+    obj = getQuote(symbol);
+    console.log(obj);
+    return res.json(obj)
+});
+
 app.listen(port, hostname, () => {
     console.log(`http://${hostname}:${port}`);
 });

@@ -33,8 +33,11 @@
     <div id="message"></div>
 <script>
 
-let buyButton = document.getElementById("buy");
-let sellButton = document.getElementById("sell");
+let dollarUS = Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+});
+
 let container = document.getElementById("portfolio");
 
 let url = `/portfolio`
@@ -52,7 +55,7 @@ fetch(url).then((response) => {
                 quantity.textContent = body.rows[i].quantity;
                 row.append(quantity);
                 daily = document.createElement('td');
-                daily.textContent = body.rows[i].total;
+                daily.textContent = dollarUS.format(body.rows[i].total);
                 row.append(daily);
                 weekly = document.createElement('td');
                 weekly.textContent = "%xx";
@@ -67,6 +70,19 @@ fetch(url).then((response) => {
         }).catch(error =>  {
             message.textContent = "Something went wrong";
         });            
+    } else {
+        message.textContent = "not status 200";   
+    }
+}).catch(error =>  {
+        message.textContent = "Something went wrong";
+})
+
+let url2 = `/quote?symbol=AAPL`
+fetch(url2).then((response) => {
+    if (response.status === 200) {
+        response.json().then(body => {
+            console.log(body);
+        });
     } else {
         message.textContent = "not status 200";   
     }
