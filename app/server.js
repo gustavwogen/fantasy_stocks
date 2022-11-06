@@ -4,6 +4,7 @@ let bcrypt = require("bcrypt");
 const crypto = require('crypto');
 let cookieParser = require("cookie-parser");
 let sessions = require('express-session');
+const path = require('path')
 
 const {getQuote} = require('./utils/iex');
 
@@ -46,7 +47,7 @@ app.use((req, res, next) => {
 });
 
 app.use(express.json());
-app.use(express.static("public"));
+app.use(express.static(path.join(__dirname, 'public')));
 
 let pool = new Pool(env);
 pool.connect().then(() => {
