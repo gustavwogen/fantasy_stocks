@@ -1,7 +1,7 @@
 \c fantasy_stocks;
 
 INSERT INTO users (username, password, email)
-VALUES ('admin', 'adminpassword', 'admin@example.com');
+VALUES ('testuser', 'password', 'test@example.com');
 
 INSERT INTO users (username, password, email)
 VALUES ('gustav', 'gustavpassword', 'gustav@example.com');

@@ -26,6 +26,13 @@ app.use(sessions({
     resave: false
 }));
 
+function logger(req, res, next) {
+    console.log("URL: " + req.url);
+    next();
+};
+
+app.use(logger);
+
 // cookie parser middleware
 app.use(cookieParser());
 
@@ -35,7 +42,6 @@ app.use((req, res, next) => {
 
     // Inject the user to the request
     req.user = authTokens[authToken];
-    console.log('custom middleware');
     next();
 });
 
@@ -111,50 +117,33 @@ app.post("/signin", (req, res) => {
                         authTokens[authToken] = username;
                         // Setting the auth token in cookies
                         res.cookie('AuthToken', authToken);
-
-                        res.cookie('loggedIn', true);
+                        console.log('hello')
                         return res.redirect("/");
                     } else {
+                        console.log('not matched password');
                          res.status(401).send();
                     }
                 })
                 .catch((error) => {
                     // bcrypt crashed
+                    console.log('bcrypt error: ' + error.message)
                     console.log(error);
                     res.status(500).send();
                 });
         })
         .catch((error) => {
             // select crashed
+            console.log('server error');
             console.log(error);
             res.status(500).send();
         });
 });
-
-const requireAuth = (req, res, next) => {
-    if (req.user) {
-        console.log('requireAuth logged in');
-        next();
-    } else {
-        console.log('requireAuth not logged in');
-        res.redirect('/user/login');
-    }
-};
-
-app.get("/", requireAuth, (req, res) => {
-    let user = req.user; 
-    // we can access the username of the currently logged in user this way
-    // lets us query data from the database
-    console.log(user);
-    res.sendFile('public/index_test.html' , { root : __dirname});
-})
 
 app.get('/user/login', function (req, res) {
     res.sendFile('public/login.html' , { root : __dirname});
 });
 
 app.get("/user/logout", (req,res) => {
-    res.cookie('loggedIn', false);
     res.cookie('AuthToken', 'None')
     res.redirect('/user/login');
 });
@@ -162,6 +151,26 @@ app.get("/user/logout", (req,res) => {
 app.get("/user/create", (req, res) => {
     res.sendFile('public/create.html' , { root : __dirname});
 });
+
+function requireAuth(req, res, next) {
+    if (req.user) {
+        next();
+    } else {
+        console.log("Redirecting to /user/login");
+        res.redirect('/user/login');
+    }
+};
+
+app.use(requireAuth); // user will need to be logged in to access any route under this line 
+
+
+app.get("/", (req, res) => {
+    let user = req.user; 
+    // we can access the username of the currently logged in user this way
+    // lets us query data from the database
+    console.log(user);
+    res.sendFile('public/index_test.html' , { root : __dirname});
+})
 
 app.get("/portfolio", (req, res) => {
     pool.query(
