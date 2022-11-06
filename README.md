@@ -1,5 +1,7 @@
 # Fantasy Stocks
 
+Run `npm start` to install all dependencies, run the database setup, and start the local server.
+
 ### Database setup:
 
 - Make sure you have **PostgresSQL** installed on your computer
