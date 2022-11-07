@@ -118,7 +118,13 @@ app.post("/signin", (req, res) => {
                         authTokens[authToken] = username;
                         // Setting the auth token in cookies
                         res.cookie('AuthToken', authToken);
-                        console.log('hello')
+                        pool.query("SELECT user_id FROM users WHERE username = $1", [
+                            username,
+                        ]).then((result) => {
+                            if (result.rows.length > 0) {
+                                req.user_id = result.rows[0].user_id;
+                            }
+                        })
                         return res.redirect("/");
                     } else {
                         console.log('not matched password');
@@ -202,13 +208,24 @@ app.get("/portfolio", (req, res) => {
     });
 })
 
+app.get("/search", (req, res) => {
+    res.sendFile('public/search.html' , { root : __dirname});
+});
 
-app.get("/quote", (req, res) => {
-    let symbol = req.query.symbol;
-    console.log(symbol);
-    obj = getQuote(symbol);
-    console.log(obj);
-    return res.json(obj)
+app.post("/quote", (req, res) => {
+    if (req.body.symbol) {
+        let ticker = req.body.symbol;
+        getQuote(ticker).then((response) => {
+            if (response.status === 200) {
+                var data = response.data;
+                return res.json(data);
+            } else {
+                return res.status(response.status).json({data: response.data})
+            }
+        }).catch((error) => {
+            console.log(error);
+        });
+    }
 });
 
 app.listen(port, hostname, () => {
