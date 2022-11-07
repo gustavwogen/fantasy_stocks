@@ -46,8 +46,7 @@ document.getElementById("login").addEventListener("click", () => {
 		body: JSON.stringify({
 			username: usernameInput.value,
 			plaintextPassword: passwordInput.value,
-		},
-		)
+		})
 	}).then((response) => {
 		if (response.redirected) {
 			window.location = response.url
