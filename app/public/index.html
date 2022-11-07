@@ -26,8 +26,7 @@
 
     <table>
         <thead>
-
-            <tr><th>Company Name</th><th>Stock</th><th>Quantity</th><th>Total Value</th><th>Daily Change</th><th>YTD Change</th><th>Currency</th></tr>
+            <tr><th>Company Name</th><th>Stock</th><th>Quantity</th><th>Total Value</th><th>Current Price</th><th>Daily Change</th><th>YTD Change</th><th>Currency</th></tr>
         </thead>
         <tbody id="portfolio"></tbody>
     </table>
@@ -56,7 +55,6 @@ fetch(url).then((response) => {
                 row.id = body.rows[i].symbol;
                 container.append(row);
                 companyName = document.createElement('td');
-                //companyName.id = 'companyName';
                 row.append(companyName);
                 stock = document.createElement('td');
                 stock.textContent = body.rows[i].symbol;
@@ -67,6 +65,8 @@ fetch(url).then((response) => {
                 value = document.createElement('td');
                 value.textContent = dollarUS.format(body.rows[i].total);
                 row.append(value);
+                price = document.createElement('td');
+                row.append(price);
                 daily = document.createElement('td');
                 row.append(daily);
                 ytd = document.createElement('td');
@@ -92,11 +92,15 @@ fetch(url).then((response) => {
                     row = document.getElementById(key)
                     companyName = row.children[0]
                     companyName.textContent = body[key].quote.companyName;
-                    dailyChg = row.children[4]
-                    dailyChg.textContent = body[key].quote.changePercent;
-                    ytdChg = row.children[5]
-                    ytdChg.textContent = body[key].quote.ytdChange;
-                    currency = row.children[6]
+                    currentPrice = row.children[4]
+                    currentPrice.textContent = dollarUS.format(body[key].quote.latestPrice);
+                    dailyChg = row.children[5]
+                    dailyFormat = Number(body[key].quote.changePercent/100).toLocaleString(undefined,{style: 'percent', minimumFractionDigits:2});
+                    dailyChg.textContent = dailyFormat;
+                    ytdChg = row.children[6]
+                    ytdFormat = Number(body[key].quote.ytdChange/100).toLocaleString(undefined,{style: 'percent', minimumFractionDigits:2});
+                    ytdChg.textContent = ytdFormat;
+                    currency = row.children[7]
                     currency.textContent = body[key].quote.currency;
                 }
         });

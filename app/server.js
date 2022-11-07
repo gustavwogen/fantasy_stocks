@@ -231,11 +231,9 @@ app.post("/quote", (req, res) => {
 
 app.get("/quote", (req, res) => {
     let ticker = req.query.symbol;
-    console.log(ticker);
     getQuotes(ticker).then((response) => {
         if (response.status === 200) {
             var data = response.data;
-            console.log(data);
             res.json(data);
         } else {
             console.log("Message: " + response.data.error);
@@ -244,24 +242,6 @@ app.get("/quote", (req, res) => {
         console.log(error);
     });
 })
-/*
-    tickerList = ticker.split(",");
-    console.log("Second:", tickerList[2], tickerList.length);
-    let infoList = []
-    for (let i=0; i<tickerList.length; i++) {
-        console.log(tickerList[i]);
-        getQuote(ticker[i]).then((response) => {
-            if (response.status === 200) {
-                infoList.push(response.data.companyName);
-                console.log(response.data.companyName);
-                console.log(infoList);
-                //console.log(infoList)
-                //return res.json(data);
-            } else {
-                //return res.status(response.status).json({data: response.data})
-            }
-*/
-
 
 app.listen(port, hostname, () => {
     console.log(`http://${hostname}:${port}`);
