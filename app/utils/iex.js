@@ -18,10 +18,11 @@ exports.getQuote = async (symbol) => {
     }
 };
 
-exports.getQuotes = async (symbols) => {
+
+exports.getQuoteList = async (symbols) => {
     try {
-        let endpoint = `stock/market/batch/`
-        query = `?token=${apiKey}&symbols=${symbols}&types=quote`
+        let endpoint = `stock/market/batch`
+        query = `?token=${apiKey}&symbols=${symbols}&types=quote&displayPercent=true`
         let url = `${baseUrl}/${endpoint}${query}`
         const response = await axios.get(url);
         return response;
@@ -31,7 +32,8 @@ exports.getQuotes = async (symbols) => {
     }
 };
 
-// getQuote('msft').then((response) => {
+
+// getQuoteList('msft,aapl').then((response) => {
 //     if (response.status === 200) {
 //         var data = response.data;
 //         console.log(data);

@@ -26,6 +26,7 @@
 
     <table>
         <thead>
+
             <tr><th>Company Name</th><th>Stock</th><th>Quantity</th><th>Total Value</th><th>Daily Change</th><th>YTD Change</th><th>Currency</th></tr>
         </thead>
         <tbody id="portfolio"></tbody>
@@ -39,7 +40,9 @@ let dollarUS = Intl.NumberFormat("en-US", {
 });
 
 let container = document.getElementById("portfolio");
+
 let tickerList = [];
+
 
 let url = `/portfolio`
 fetch(url).then((response) => {
@@ -111,6 +114,7 @@ fetch(url).then((response) => {
 })
 
 //companyName.textContent = getQuote('AAPL');
+
 /*
 let url2 = `/quote?symbol=AAPL`
 console.log(url2)
@@ -119,6 +123,7 @@ fetch(url2).then((response) => {
         response.json().then(body => {
             console.log(body);
             companyName.textContent = body.companyName
+
         });
     } else {
         message.textContent = "not status 200";   
