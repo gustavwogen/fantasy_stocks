@@ -4,6 +4,7 @@ let bcrypt = require("bcrypt");
 const crypto = require('crypto');
 let cookieParser = require("cookie-parser");
 let sessions = require('express-session');
+const path = require('path')
 
 const {getQuote} = require('./utils/iex');
 
@@ -26,6 +27,13 @@ app.use(sessions({
     resave: false
 }));
 
+function logger(req, res, next) {
+    console.log("URL: " + req.url);
+    next();
+};
+
+app.use(logger);
+
 // cookie parser middleware
 app.use(cookieParser());
 
@@ -35,12 +43,11 @@ app.use((req, res, next) => {
 
     // Inject the user to the request
     req.user = authTokens[authToken];
-    console.log('custom middleware');
     next();
 });
 
 app.use(express.json());
-app.use(express.static("public"));
+app.use(express.static(path.join(__dirname, 'public')));
 
 let pool = new Pool(env);
 pool.connect().then(() => {
@@ -111,50 +118,39 @@ app.post("/signin", (req, res) => {
                         authTokens[authToken] = username;
                         // Setting the auth token in cookies
                         res.cookie('AuthToken', authToken);
-
-                        res.cookie('loggedIn', true);
+                        pool.query("SELECT user_id FROM users WHERE username = $1", [
+                            username,
+                        ]).then((result) => {
+                            if (result.rows.length > 0) {
+                                req.user_id = result.rows[0].user_id;
+                            }
+                        })
                         return res.redirect("/");
                     } else {
+                        console.log('not matched password');
                          res.status(401).send();
                     }
                 })
                 .catch((error) => {
                     // bcrypt crashed
+                    console.log('bcrypt error: ' + error.message)
                     console.log(error);
                     res.status(500).send();
                 });
         })
         .catch((error) => {
             // select crashed
+            console.log('server error');
             console.log(error);
             res.status(500).send();
         });
 });
-
-const requireAuth = (req, res, next) => {
-    if (req.user) {
-        console.log('requireAuth logged in');
-        next();
-    } else {
-        console.log('requireAuth not logged in');
-        res.redirect('/user/login');
-    }
-};
-
-app.get("/", requireAuth, (req, res) => {
-    let user = req.user; 
-    // we can access the username of the currently logged in user this way
-    // lets us query data from the database
-    console.log(user);
-    res.sendFile('public/index_test.html' , { root : __dirname});
-})
 
 app.get('/user/login', function (req, res) {
     res.sendFile('public/login.html' , { root : __dirname});
 });
 
 app.get("/user/logout", (req,res) => {
-    res.cookie('loggedIn', false);
     res.cookie('AuthToken', 'None')
     res.redirect('/user/login');
 });
@@ -162,6 +158,26 @@ app.get("/user/logout", (req,res) => {
 app.get("/user/create", (req, res) => {
     res.sendFile('public/create.html' , { root : __dirname});
 });
+
+function requireAuth(req, res, next) {
+    if (req.user) {
+        next();
+    } else {
+        console.log("Redirecting to /user/login");
+        res.redirect('/user/login');
+    }
+};
+
+app.use(requireAuth); // user will need to be logged in to access any route under this line 
+
+
+app.get("/", (req, res) => {
+    let user = req.user; 
+    // we can access the username of the currently logged in user this way
+    // lets us query data from the database
+    console.log(user);
+    res.sendFile('public/index_test.html' , { root : __dirname});
+})
 
 app.get("/portfolio", (req, res) => {
     pool.query(
@@ -192,13 +208,24 @@ app.get("/portfolio", (req, res) => {
     });
 })
 
+app.get("/search", (req, res) => {
+    res.sendFile('public/search.html' , { root : __dirname});
+});
 
-app.get("/quote", (req, res) => {
-    let symbol = req.query.symbol;
-    console.log(symbol);
-    obj = getQuote(symbol);
-    console.log(obj);
-    return res.json(obj)
+app.post("/quote", (req, res) => {
+    if (req.body.symbol) {
+        let ticker = req.body.symbol;
+        getQuote(ticker).then((response) => {
+            if (response.status === 200) {
+                var data = response.data;
+                return res.json(data);
+            } else {
+                return res.status(response.status).json({data: response.data})
+            }
+        }).catch((error) => {
+            console.log(error);
+        });
+    }
 });
 
 app.listen(port, hostname, () => {
