@@ -18,7 +18,21 @@ exports.getQuote = async (symbol) => {
     }
 };
 
-// getQuote('msft').then((response) => {
+exports.getQuoteList = async (symbols) => {
+    try {
+        let endpoint = `stock/market/batch`
+        query = `?token=${apiKey}&symbols=${symbols}&types=quote&displayPercent=true`
+        let url = `${baseUrl}/${endpoint}${query}`
+        const response = await axios.get(url);
+        return response;
+    } catch (err) {
+        // Handle Error Here
+        return err.response;
+    }
+};
+
+
+// getQuoteList('msft,aapl').then((response) => {
 //     if (response.status === 200) {
 //         var data = response.data;
 //         console.log(data);
