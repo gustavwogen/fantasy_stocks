@@ -1,0 +1,8 @@
+{
+    "user": "USERNAME",
+    "host": "localhost",
+    "database": "fantasy_stocks",
+    "password": "PASSWORD",
+    "port": 5432,
+    "apiKey": "KEY" 
+}
