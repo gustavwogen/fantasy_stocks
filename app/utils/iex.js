@@ -18,6 +18,7 @@ exports.getQuote = async (symbol) => {
     }
 };
 
+
 exports.getQuoteList = async (symbols) => {
     try {
         let endpoint = `stock/market/batch`

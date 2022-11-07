@@ -26,7 +26,8 @@
 
     <table>
         <thead>
-            <tr><th>Company Name</th><th>Stock</th><th>Quantity</th><th>Total Value</th><th>Weekly Change</th></tr>
+
+            <tr><th>Company Name</th><th>Stock</th><th>Quantity</th><th>Total Value</th><th>Daily Change</th><th>YTD Change</th><th>Currency</th></tr>
         </thead>
         <tbody id="portfolio"></tbody>
     </table>
@@ -39,7 +40,9 @@ let dollarUS = Intl.NumberFormat("en-US", {
 });
 
 let container = document.getElementById("portfolio");
-//let tickerList = [];
+
+let tickerList = [];
+
 
 let url = `/portfolio`
 fetch(url).then((response) => {
@@ -47,11 +50,13 @@ fetch(url).then((response) => {
         response.json().then(body => {
             console.log(body.rows);
             for (let i=0; i<body.rows.length; i++) {
-                //tickerList.push(body.rows[i].symbol);
+                tickerList.push(body.rows[i].symbol);
                 //console.log(tickerList);
                 row = document.createElement('tr');
+                row.id = body.rows[i].symbol;
                 container.append(row);
                 companyName = document.createElement('td');
+                //companyName.id = 'companyName';
                 row.append(companyName);
                 stock = document.createElement('td');
                 stock.textContent = body.rows[i].symbol;
@@ -59,12 +64,15 @@ fetch(url).then((response) => {
                 quantity = document.createElement('td');
                 quantity.textContent = body.rows[i].quantity;
                 row.append(quantity);
+                value = document.createElement('td');
+                value.textContent = dollarUS.format(body.rows[i].total);
+                row.append(value);
                 daily = document.createElement('td');
-                daily.textContent = dollarUS.format(body.rows[i].total);
                 row.append(daily);
-                weekly = document.createElement('td');
-                weekly.textContent = "%xx";
-                row.append(weekly);
+                ytd = document.createElement('td');
+                row.append(ytd);
+                currency = document.createElement('td');
+                row.append(currency);
                 buyBtn = document.createElement("button");
                 buyBtn.textContent = "Buy";
                 row.append(buyBtn);
@@ -72,9 +80,32 @@ fetch(url).then((response) => {
                 sellBtn.textContent = "Sell";
                 row.append(sellBtn);
             }
+        let url2 = `/quote?symbol=${tickerList}`
+        console.log(url2)
+        return fetch(url2);
+        })
+        .then(response => {
+        if (response.status === 200) {
+            response.json().then(body => {
+                console.log("Second fetch:", body);
+                for (var key of Object.keys(body)) {
+                    row = document.getElementById(key)
+                    companyName = row.children[0]
+                    companyName.textContent = body[key].quote.companyName;
+                    dailyChg = row.children[4]
+                    dailyChg.textContent = body[key].quote.changePercent;
+                    ytdChg = row.children[5]
+                    ytdChg.textContent = body[key].quote.ytdChange;
+                    currency = row.children[6]
+                    currency.textContent = body[key].quote.currency;
+                }
+        });
+        } else {
+        message.textContent = "not status 200";   
+        }
         }).catch(error =>  {
             message.textContent = "Something went wrong";
-        });            
+        });
     } else {
         message.textContent = "not status 200";   
     }
@@ -84,13 +115,15 @@ fetch(url).then((response) => {
 
 //companyName.textContent = getQuote('AAPL');
 
+/*
 let url2 = `/quote?symbol=AAPL`
 console.log(url2)
 fetch(url2).then((response) => {
     if (response.status === 200) {
         response.json().then(body => {
             console.log(body);
-            //companyName.textContent = body.companyName
+            companyName.textContent = body.companyName
+
         });
     } else {
         message.textContent = "not status 200";   
@@ -98,7 +131,7 @@ fetch(url2).then((response) => {
 }).catch(error =>  {
         message.textContent = "Something went wrong";
 })
-
+*/
 </script>
 
 </body>
