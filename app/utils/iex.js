@@ -18,3 +18,15 @@ exports.getQuotes = async (symbols) => {
     }
 };
 
+exports.getQuote = async (symbol) => {
+    try {
+        let endpoint = `stock/${symbol}/quote`
+        query = `?token=${apiKey}&displayPercent=true`
+        let url = `${baseUrl}/${endpoint}${query}`
+        const response = await axios.get(url);
+        return response;
+    } catch (err) {
+        // Handle Error Here
+        return err.response;
+    }
+};
