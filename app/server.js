@@ -177,7 +177,7 @@ app.get("/", (req, res) => {
     // we can access the username of the currently logged in user this way
     // lets us query data from the database
     console.log(user);
-    res.sendFile('public/index_test.html' , { root : __dirname});
+    res.sendFile('public/index.html' , { root : __dirname});
 })
 
 app.get("/portfolio", (req, res) => {
