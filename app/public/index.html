@@ -76,9 +76,11 @@ fetch(url).then((response) => {
                 row.append(currency);
                 buyBtn = document.createElement("button");
                 buyBtn.textContent = "Buy";
+                buyBtn.id = body.rows[i].symbol;
                 row.append(buyBtn);
                 sellBtn = document.createElement("button");
                 sellBtn.textContent = "Sell";
+                sellBtn.id = body.rows[i].symbol;
                 row.append(sellBtn);
             }
         let url2 = `/quote?symbol=${tickerList}`

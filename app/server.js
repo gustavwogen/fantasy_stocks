@@ -243,6 +243,56 @@ app.get("/quote", (req, res) => {
     });
 })
 
+app.get("/price", (req, res) => {
+    let ticker = req.query.symbol;
+    getQuote(ticker).then((response) => {
+        if (response.status === 200) {
+            var data = response.data;
+            res.json(data);
+        } else {
+            console.log("Message: " + response.data.error);
+        }
+    }).catch((error) => {
+        console.log(error);
+    });
+})
+
+app.post("/buy", (req, res) => {
+    let ticker = req.body.symbol;
+    let action = req.body.action;
+    let quantity = req.body.quantity;
+    let portfolioId = req.body.portfolioId;
+    let price = 1000;
+    console.log(ticker, action, quantity, portfolioId, price);
+  
+    pool.query(`
+        INSERT INTO orders (portfolio_id, order_type, symbol, quantity, unit_price) 
+        VALUES ($1, $2, $3, $4, $5)`,
+        [portfolioId, action, ticker, quantity, price]
+    ).then(result => {
+        return res.json({"rows": result.rows});
+    });
+    
+})
+
+app.post("/sell", (req, res) => {
+    let ticker = req.body.symbol;
+    let action = req.body.action;
+    let quantity = req.body.quantity;
+    let portfolioId = req.body.portfolioId;
+    console.log(ticker, action, quantity, portfolioId);
+    /*
+    pool.query(
+    
+        ).then(result => {
+            return res.json({"rows": result.rows});
+        });
+    */
+})
+
+
+
+
 app.listen(port, hostname, () => {
     console.log(`http://${hostname}:${port}`);
 });
