@@ -1,0 +1,23 @@
+extends layout 
+
+block content
+    h2 Log in 
+    table
+        tr 
+            td
+                label(for="username", name="username") Username: 
+            td
+                input#username(type="text")
+        tr 
+            td 
+                label(for="password", name="password") Password:
+            td
+                input#password(type="password")
+
+    button#login Login
+
+    div#result
+
+    p Need an account? Create an account #[a(href="/user/create") here]
+    
+    script(src="/scripts/login.js") 
