@@ -259,6 +259,59 @@ app.get("/quote", (req, res) => {
     });
 })
 
+app.get("/price", (req, res) => {
+    let ticker = req.query.symbol;
+    getQuote(ticker).then((response) => {
+        if (response.status === 200) {
+            var data = response.data;
+            res.json(data);
+        } else {
+            console.log("Message: " + response.data.error);
+        }
+    }).catch((error) => {
+        console.log(error);
+    });
+})
+
+app.get("/buy", (req, res) => {
+    let ticker = req.query.symbol.toUpperCase();
+    let action = req.query.action.toUpperCase();
+    let quantity = req.query.quantity;
+    let portfolioId = req.query.portfolioId;
+    let price = req.query.price;
+
+    console.log(ticker, action, quantity, portfolioId, price);
+
+    pool.query(`
+        INSERT INTO orders (portfolio_id, order_type, symbol, quantity, unit_price) 
+        VALUES ($1, $2, $3, $4, $5)`,
+        [portfolioId, action, ticker, quantity, price]
+    ).then(result => {
+        return res.json(result);
+    });
+})
+
+app.get("/sell", (req, res) => {
+    let ticker = req.query.symbol.toUpperCase();
+    let action = req.query.action.toUpperCase();
+    let quantity = req.query.quantity;
+    let portfolioId = req.query.portfolioId;
+    let price = req.query.price;
+
+    console.log(ticker, action, quantity, portfolioId, price);
+
+    pool.query(`
+        INSERT INTO orders (portfolio_id, order_type, symbol, quantity, unit_price) 
+        VALUES ($1, $2, $3, $4, $5)`,
+        [portfolioId, action, ticker, quantity, price]
+    ).then(result => {
+        return res.json(result);
+    });
+})
+
+
+
+
 app.listen(port, hostname, () => {
     console.log(`http://${hostname}:${port}`);
 });
