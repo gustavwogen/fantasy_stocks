@@ -94,13 +94,22 @@
     buyBtn.addEventListener("click", () => {
         let ticker = form.elements['ticker'].value;
         let quantity = document.getElementById('quantity').value;
+        let latestPrice = 0;
         fetch(`/price?symbol=${ticker}`).then((response) => {
             if (response.status === 200) {
                 response.json().then(body => {
                     console.log(body.companyName, body.latestPrice)
-                    let latestPrice = body.latestPrice;
+                    latestPrice = body.latestPrice;
                     console.log(latestPrice);
-                })
+            let urlBuy = `/buy?symbol=${ticker}&action=buy&quantity=${quantity}&portfolioId=${portfolioId}&price=${latestPrice}`
+            console.log(urlBuy);
+            return fetch(urlBuy)
+        })
+        .then(response => {
+            response.json().then(body => {
+                console.log(body);
+            })
+        })
             } else {
                 response.json().then((errorBody) => {
                     document.getElementById("sucessful-search").style.display = "none";
@@ -110,31 +119,36 @@
                     errorDiv.style.color = "red";
                 })
             }
-        }).then(
-            fetch("/buy", {
-            method: 'POST',
-            body: JSON.stringify({symbol: ticker, action: 'buy', quantity: quantity, portfolioId: portfolioId}),
-            headers: {
-                "Content-Type": "application/json"
-                }
-            })
-        ).then(response => {
-            response.json().then(body => {
-                console.log("Second fetch:", body);
-            })
-        
         })
     })
 
     sellBtn.addEventListener("click", () => {
         let ticker = form.elements['ticker'].value;
         let quantity = document.getElementById('quantity').value;
-        console.log("SELL");
-        fetch("/buy", {
-            method: 'POST',
-            body: JSON.stringify({symbol: ticker, action: 'sell', quantity: quantity, portfolioId: portfolioId}),
-            headers: {
-                "Content-Type": "application/json"
+        let latestPrice = 0;
+        fetch(`/price?symbol=${ticker}`).then((response) => {
+            if (response.status === 200) {
+                response.json().then(body => {
+                    console.log(body.companyName, body.latestPrice)
+                    latestPrice = body.latestPrice;
+                    console.log(latestPrice);
+            let urlBuy = `/sell?symbol=${ticker}&action=sell&quantity=${quantity}&portfolioId=${portfolioId}&price=${latestPrice}`
+            console.log(urlBuy);
+            return fetch(urlBuy)
+        })
+        .then(response => {
+            response.json().then(body => {
+                console.log(body);
+            })
+        })
+            } else {
+                response.json().then((errorBody) => {
+                    document.getElementById("sucessful-search").style.display = "none";
+                    document.getElementById("error-message").style.display = "initial";
+                    let errorDiv = document.getElementById("error-message");
+                    errorDiv.textContent = errorBody.data;
+                    errorDiv.style.color = "red";
+                })
             }
         })
     })

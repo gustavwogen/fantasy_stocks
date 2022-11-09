@@ -257,37 +257,40 @@ app.get("/price", (req, res) => {
     });
 })
 
-app.post("/buy", (req, res) => {
-    let ticker = req.body.symbol;
-    let action = req.body.action;
-    let quantity = req.body.quantity;
-    let portfolioId = req.body.portfolioId;
-    let price = 1000;
+app.get("/buy", (req, res) => {
+    let ticker = req.query.symbol.toUpperCase();
+    let action = req.query.action.toUpperCase();
+    let quantity = req.query.quantity;
+    let portfolioId = req.query.portfolioId;
+    let price = req.query.price;
+
     console.log(ticker, action, quantity, portfolioId, price);
-  
+
     pool.query(`
         INSERT INTO orders (portfolio_id, order_type, symbol, quantity, unit_price) 
         VALUES ($1, $2, $3, $4, $5)`,
         [portfolioId, action, ticker, quantity, price]
     ).then(result => {
-        return res.json({"rows": result.rows});
+        return res.json(result);
     });
-    
 })
 
-app.post("/sell", (req, res) => {
-    let ticker = req.body.symbol;
-    let action = req.body.action;
-    let quantity = req.body.quantity;
-    let portfolioId = req.body.portfolioId;
-    console.log(ticker, action, quantity, portfolioId);
-    /*
-    pool.query(
-    
-        ).then(result => {
-            return res.json({"rows": result.rows});
-        });
-    */
+app.get("/sell", (req, res) => {
+    let ticker = req.query.symbol.toUpperCase();
+    let action = req.query.action.toUpperCase();
+    let quantity = req.query.quantity;
+    let portfolioId = req.query.portfolioId;
+    let price = req.query.price;
+
+    console.log(ticker, action, quantity, portfolioId, price);
+
+    pool.query(`
+        INSERT INTO orders (portfolio_id, order_type, symbol, quantity, unit_price) 
+        VALUES ($1, $2, $3, $4, $5)`,
+        [portfolioId, action, ticker, quantity, price]
+    ).then(result => {
+        return res.json(result);
+    });
 })
 
 
