@@ -1,0 +1,52 @@
+extends base_layout 
+block style 
+  link(rel="stylesheet", href="/css/signup.css")
+
+block content
+  .text-center
+    form(class="form-signin", action="/user/create", method="POST")
+      h1(class=["h3", "mb-3", "font-weight-normal"]) Create an account
+      
+      label(for="inputUsername", class="sr-only") Username
+      input#username(type="text", name="username", class="form-control", placeholder="Username" required autofocus)
+
+      label(for="inputEmail", class="sr-only") Email
+      input#email(type="email", name="email", class="form-control", placeholder="Email" required autofocus)
+
+      label(for="inputPassword", class="sr-only") Password
+      input#password(type="password", name="password", class="form-control", placeholder="Password", onkeyup="checkPassword()" required)
+
+      label(for="inputConfirmPassword", class="sr-only") Confirm Password
+      input#confirmPassword(type="password", name="confirmPassword", class="form-control", placeholder="Confirm Password", onkeyup="checkPassword()" required)
+      button#login(type="submit", class="btn btn-lg btn-primary btn-block") Create account
+      br
+      p Already have an account? #[a(href="/user/login") Sign in]
+      p#passwordMatch(class="text-danger")
+      - var user = user_created
+      if user
+        div(class="alert alert-success", role="alert") User "#{username}" successfully created!
+          button(type="button", class="close", data-dismiss="alert" aria-label="Close")
+            span(aria-hidden="true") &times;
+      - var user_taken = username_taken 
+      if user_taken
+        div#usernameTaken(class="alert alert-danger alert-dismissible fade show", role="alert") Username is already taken
+          button(type="button", class="close" data-dismiss="alert" aria-label="Close")
+            span(aria-hidden="true") &times;
+      div#result(class="text-danger") #{error}
+
+  script.
+    function checkPassword() {
+      let password1 = document.getElementById('password').value
+      let password2 = document.getElementById('confirmPassword').value
+      let errorMessage = document.getElementById('passwordMatch')
+      if(password1 === password2) {
+        errorMessage.style.display = 'none';
+      } else {
+        if (!password1 || !password2) {
+          errorMessage.style.display = 'none';
+        } else {
+          errorMessage.style.display = 'initial';
+          errorMessage.textContent = "Passwords do not match";
+        }
+      }
+    }

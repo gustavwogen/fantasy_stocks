@@ -3,6 +3,9 @@ let { Pool } = require("pg");
 let bcrypt = require("bcrypt");
 const crypto = require('crypto');
 let cookieParser = require("cookie-parser");
+let bodyParser = require('body-parser');
+var multer = require('multer');
+var upload = multer();
 let sessions = require('express-session');
 const path = require('path')
 let pug = require("pug")
@@ -44,6 +47,9 @@ app.use(logger);
 
 // cookie parser middleware
 app.use(cookieParser());
+app.use(bodyParser.urlencoded({ extended: true })); 
+
+app.use(upload.array()); 
 
 app.use((req, res, next) => {
     // Get auth token from the cookies
@@ -73,9 +79,13 @@ const generateAuthToken = () => {
 // Ideally this should be stored in Redis or some other db instead
 const authTokens = {};
 
-app.post("/signup", (req, res) => {
+app.get("/user/create", (req, res) => {
+    res.render('create_user');
+});
+
+app.post("/user/create", (req, res) => {
     let username = req.body.username;
-    let plaintextPassword = req.body.plaintextPassword;
+    let plaintextPassword = req.body.password;
     let email = req.body.email;
 
     bcrypt
@@ -88,14 +98,24 @@ app.post("/signup", (req, res) => {
                 .then(() => {
                     // account created
                     console.log(username, "account created");
-                    res.status(200).send();
+                    res.status(200);
+                    res.render('create_user', {
+                        user_created: true,
+                        username: username
+                    })
                 })
                 .catch((error) => {
                     // insert failed
                     if (error.detail === `Key (username)=(${username}) already exists.`) {
-                        return res.status(401).send("Username is already taken.");
+                        res.status(401);
+                        res.render('create_user', {
+                            username_taken: true,
+                            username: username
+                        })
+                        // return res.status(401).send("Username is already taken.");
+                    } else {
+                        return res.status(500).send("Account creation failed");
                     }
-                    return res.status(500).send("Account creation failed");
                 });
         })
         .catch((error) => {
@@ -105,16 +125,25 @@ app.post("/signup", (req, res) => {
         });
 });
 
-app.post("/signin", (req, res) => {
+app.get('/user/login', (req, res) => {
+    res.render('login');
+});
+
+app.post("/user/login", (req, res) => {
+    console.log('hello');
+    console.log(req.body);
     let username = req.body.username;
-    let plaintextPassword = req.body.plaintextPassword;
+    let plaintextPassword = req.body.password;
     pool.query("SELECT password FROM users WHERE username = $1", [
         username,
     ])
         .then((result) => {
             if (result.rows.length === 0) {
                 // username doesn't exist
-                return res.status(401).send();
+                res.status(401);
+                return res.render('login', {
+                    error: "Incorrect username or password"
+                });
             }
             let hashedPassword = result.rows[0].password;
             bcrypt
@@ -141,7 +170,10 @@ app.post("/signin", (req, res) => {
                         })
                     } else {
                         console.log('not matched password');
-                         res.status(401).send();
+                        res.status(401);
+                        return res.render('login', {
+                            error: "Incorrect username or password"
+                        });
                     }
                 })
                 .catch((error) => {
@@ -159,19 +191,9 @@ app.post("/signin", (req, res) => {
         });
 });
 
-app.get('/user/login', function (req, res) {
-    console.log('user login')
-    // res.sendFile('public/login.html' , { root : __dirname});
-    res.render('login');
-});
-
 app.get("/user/logout", (req,res) => {
     res.cookie('AuthToken', 'None')
     res.redirect('/user/login');
-});
-
-app.get("/user/create", (req, res) => {
-    res.render('create');
 });
 
 function requireAuth(req, res, next) {
