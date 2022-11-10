@@ -262,11 +262,11 @@ app.get("/search", (req, res) => {
         if (response.status === 200) {
             var data = response.data;
             data = data[ticker.toUpperCase()]['quote'];
-            res.render('search', data);
+            res.render('search_bootstrap', data);
         } else {
             console.log("Message: " + response.data);
             res.status(response.status);
-            res.render('search', {error: response.data});
+            res.render('search_bootstrap', {error: response.data});
         }
     }).catch((error) => {
         console.log(error);
