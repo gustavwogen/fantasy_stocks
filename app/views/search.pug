@@ -2,26 +2,34 @@ extends base_layout
 
 block content
 
-    li
-        a(href="/") Home page 
-    
-    form#form(action="")
-        label Search for stock:
-            input#ticker-search(type="text", name="ticker")
-        br
-        button(type="submit") Search 
-    
-    div#successful-search
-        div#company-info 
-            h3#company-name 
-            input(id="quantity", type="number", name="quantity", placeholder="Quantity")
-            button(id="buy") Buy
-            button(id="sell") Sell
-            div#price-container 
-                h1#price
-                h3#change-price 
-                h3#change-percent 
-    
-    div#error-message
+    div(class="container")
+        if error 
+            p= error 
+        else 
+            h3= `${companyName} (${symbol})`
+            div(class="container")
+                h1= latestPrice
 
-    script(src="/scripts/search_stock.js") 
+    //- li
+    //-     a(href="/") Home page 
+    
+    //- form#form(action="")
+    //-     label Search for stock:
+    //-         input#ticker-search(type="text", name="ticker")
+    //-     br
+    //-     button(type="submit") Search 
+    
+    //- div#successful-search
+    //-     div#company-info 
+    //-         h3#company-name 
+    //-         input(id="quantity", type="number", name="quantity", placeholder="Quantity")
+    //-         button(id="buy") Buy
+    //-         button(id="sell") Sell
+    //-         div#price-container 
+    //-             h1#price
+    //-             h3#change-price 
+    //-             h3#change-percent 
+    
+    //- div#error-message
+
+    //- script(src="/scripts/search_stock.js") 
