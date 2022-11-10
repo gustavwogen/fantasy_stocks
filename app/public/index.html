@@ -27,7 +27,7 @@
 
     <table>
         <thead>
-            <tr><th>Company Name</th><th>Stock</th><th>Quantity</th><th>Total Value</th><th>Current Price</th><th>Daily Change</th><th>YTD Change</th><th>Currency</th></tr>
+            <tr><th>Company Name</th><th>Stock</th><th>Quantity</th><th>GAV</th><th>Current Price</th><th>Daily Change</th><th>YTD Change</th><th>Total Value</th><th>Yield</th></tr>
         </thead>
         <tbody id="portfolio"></tbody>
     </table>
@@ -40,49 +40,75 @@ let dollarUS = Intl.NumberFormat("en-US", {
 });
 
 let container = document.getElementById("portfolio");
-
 let tickerList = [];
-
+let originTotal = 0;
+let currentTotal = 0;
 
 let url = `/portfolio`
 fetch(url).then((response) => {
     if (response.status === 200) {
         response.json().then(body => {
-            console.log(body.rows);
             for (let i=0; i<body.rows.length; i++) {
                 tickerList.push(body.rows[i].symbol);
-                //console.log(tickerList);
+                //Sum all orignial stock values up
+                originTotal += Number(body.rows[i].total);
                 row = document.createElement('tr');
                 row.id = body.rows[i].symbol;
                 container.append(row);
+
                 companyName = document.createElement('td');
                 row.append(companyName);
                 stock = document.createElement('td');
                 stock.textContent = body.rows[i].symbol;
+                stock.id = body.rows[i].symbol + "ticker"
                 row.append(stock);
+
                 quantity = document.createElement('td');
                 quantity.textContent = body.rows[i].quantity;
                 row.append(quantity);
-                value = document.createElement('td');
-                value.textContent = dollarUS.format(body.rows[i].total);
-                row.append(value);
+
+                gav = document.createElement('td');
+                //Calculating average unit price of each stock
+                aveUnitPrice = body.rows[i].total / body.rows[i].quantity
+                gav.textContent = dollarUS.format(aveUnitPrice);
+                row.append(gav);
+
                 price = document.createElement('td');
                 row.append(price);
                 daily = document.createElement('td');
                 row.append(daily);
                 ytd = document.createElement('td');
                 row.append(ytd);
-                currency = document.createElement('td');
-                row.append(currency);
+                totalValue = document.createElement('td');
+                row.append(totalValue);
+                stockYield = document.createElement('td');
+                row.append(stockYield);
+
                 buyBtn = document.createElement("button");
                 buyBtn.textContent = "Buy";
-                buyBtn.id = body.rows[i].symbol;
+                buyBtn.id = body.rows[i].symbol + "buy";
                 row.append(buyBtn);
                 sellBtn = document.createElement("button");
                 sellBtn.textContent = "Sell";
-                sellBtn.id = body.rows[i].symbol;
+                sellBtn.id = body.rows[i].symbol+"sell";
                 row.append(sellBtn);
+                quantityInput = document.createElement("INPUT");
+                quantityInput.placeholder = "Quantity";
+                quantityInput.id = body.rows[i].symbol+"quantity";
+                row.append(quantityInput);
             }
+        row = document.createElement('tr'); row.style.fontWeight = 'bold'; row.style.fontSize = "large"; container.append(row);
+        nameTotal = document.createElement("td"); nameTotal.textContent = "Total"; row.append(nameTotal);
+        empty1 = document.createElement("td"); empty1.textContent = ""; row.append(empty1);
+        empty2 = document.createElement("td"); empty2.textContent = ""; row.append(empty2);
+        empty3 = document.createElement("td"); empty3.textContent = ""; row.append(empty3);
+        empty4 = document.createElement("td"); empty4.textContent = ""; row.append(empty4);
+        empty5 = document.createElement("td"); empty5.textContent = ""; row.append(empty5);
+        empty6 = document.createElement("td"); empty6.textContent = ""; row.append(empty6);
+        displayTotal = document.createElement("td"); row.append(displayTotal);
+        totalYield = document.createElement("td"); row.append(totalYield);
+
+
         let url2 = `/quote?symbol=${tickerList}`
         console.log(url2)
         return fetch(url2);
@@ -103,9 +129,28 @@ fetch(url).then((response) => {
                     ytdChg = row.children[6]
                     ytdFormat = Number(body[key].quote.ytdChange/100).toLocaleString(undefined,{style: 'percent', minimumFractionDigits:2});
                     ytdChg.textContent = ytdFormat;
-                    currency = row.children[7]
-                    currency.textContent = body[key].quote.currency;
+                    totalValue = row.children[7];
+                    totalValue.textContent = dollarUS.format(body[key].quote.latestPrice * row.children[2].innerText);
+                    
+                    // Sum up current total value
+                    currentTotal += body[key].quote.latestPrice * row.children[2].innerText
+                    gav = row.children[3].innerText.substring(1);
+                    // Average % increase/decrease for each stock --> current price/average unit price
+                    stockYield = row.children[8]
+                    stockYield.textContent = Number((body[key].quote.latestPrice / gav) - 1).toLocaleString(undefined,{style: 'percent', minimumFractionDigits:2});
+                    if (Number(stockYield.textContent.slice(0, -1)) > 0) {
+                        stockYield.style.color = "green";
+                    } else if (Number(stockYield.textContent.slice(0, -1)) < 0) {
+                        stockYield.style.color = "red";
+                    }
                 }
+            displayTotal.textContent = dollarUS.format(currentTotal);
+            totalYield.textContent = Number(currentTotal/originTotal - 1).toLocaleString(undefined,{style: 'percent', minimumFractionDigits:2});
+            if (Number(totalYield.textContent.slice(0, -1)) > 0) {
+                totalYield.style.color = "green";
+            } else if (Number(totalYield.textContent.slice(0, -1)) < 0) {
+                totalYield.style.color = "red";
+            }
         });
         } else {
         message.textContent = "not status 200";   
@@ -120,25 +165,35 @@ fetch(url).then((response) => {
         message.textContent = "Something went wrong";
 })
 
-//companyName.textContent = getQuote('AAPL');
-
-/*
-let url2 = `/quote?symbol=AAPL`
-console.log(url2)
-fetch(url2).then((response) => {
-    if (response.status === 200) {
-        response.json().then(body => {
-            console.log(body);
-            companyName.textContent = body.companyName
-
-        });
-    } else {
-        message.textContent = "not status 200";   
-    }
-}).catch(error =>  {
-        message.textContent = "Something went wrong";
-})
-*/
+// .then(document.getElementById("AAPLbuy").addEventListener("click", () => {
+//     let ticker = getElementById("APPLticker").value;
+//     let quantity = getElementById("APPLquantity").value;
+//     let latestPrice = 0;
+//     let portfolioId = 1;
+//     fetch(`/price?symbol=${ticker}`).then((response) => {
+//         if (response.status === 200) {
+//             response.json().then(body => {
+//                 console.log(body.companyName, body.latestPrice)
+//                 latestPrice = body.latestPrice;
+//                 console.log(latestPrice);
+//         let urlBuy = `/placeOrder?symbol=${ticker}&orderType=BUY&quantity=${quantity}&portfolioId=${portfolioId}&price=${latestPrice}`
+//         console.log(urlBuy);
+//         return fetch(urlBuy)
+//     })
+//     .then(response => {
+//         response.json().then(body => {
+//             message.textContent = `Bought ${quantity} ${ticker}`;
+//             console.log(body);
+//         })
+//     })
+//         } else {
+//             response.json().then((errorBody) => {
+//                 console.log(errorBody)
+//             })
+//         }
+//     })
+// })
+// )
 </script>
 
 </body>
