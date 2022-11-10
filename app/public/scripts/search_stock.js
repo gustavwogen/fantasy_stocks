@@ -3,6 +3,7 @@ let sellBtn = document.getElementById('sell');
 let quantity = document.getElementById('quantity')
 let portfolioId = 1;
 const form = document.getElementById('form');
+let message = document.getElementById('message');
 
 form.addEventListener('submit', (event) => {
     let ticker = form.elements['ticker'].value;
@@ -68,6 +69,7 @@ buyBtn.addEventListener("click", () => {
     })
     .then(response => {
         response.json().then(body => {
+            message.textContent = `Bought ${quantity} ${ticker}`;
             console.log(body);
         })
     })
@@ -99,6 +101,7 @@ sellBtn.addEventListener("click", () => {
     })
     .then(response => {
         response.json().then(body => {
+            message.textContent = `Sold ${quantity} ${ticker}`;
             console.log(body);
         })
     })
