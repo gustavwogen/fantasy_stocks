@@ -262,6 +262,7 @@ app.get("/quote", (req, res) => {
     });
 })
 
+
 // Get Price - 1 ticker
 app.get("/price", (req, res) => {
     let ticker = req.query.symbol;
