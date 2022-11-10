@@ -11,9 +11,12 @@ block content
         br
         button(type="submit") Search 
     
-    div#successful-search 
+    div#successful-search
         div#company-info 
             h3#company-name 
+            input(id="quantity", type="number", name="quantity", placeholder="Quantity")
+            button(id="buy") Buy
+            button(id="sell") Sell
             div#price-container 
                 h1#price
                 h3#change-price 
