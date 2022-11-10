@@ -25,6 +25,7 @@
             <h3 id="company-name"></h1>
             <input id="quantity" type="number" placeholder="Quantity"></input>
             <button id="buy">Buy</button> <button id="sell">Sell</button>
+            <div id="message"></div>
             <div id="price-container">
                 <h1 id="price"></h1>
                 <h3 id="change-price"></h3>
@@ -42,6 +43,7 @@
         let quantity = document.getElementById('quantity')
         let portfolioId = 1;
         const form = document.getElementById('form');
+        let message = document.getElementById('message');
 
         form.addEventListener('submit', () => {
             let ticker = form.elements['ticker'].value;
@@ -107,6 +109,7 @@
         })
         .then(response => {
             response.json().then(body => {
+                message.textContent = `Bought ${quantity} ${ticker}`;
                 console.log(body);
             })
         })
@@ -138,6 +141,7 @@
         })
         .then(response => {
             response.json().then(body => {
+                message.textContent = `Sold ${quantity} ${ticker}`;
                 console.log(body);
             })
         })
