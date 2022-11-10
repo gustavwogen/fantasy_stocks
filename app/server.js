@@ -9,6 +9,7 @@ let pug = require("pug")
 
 const {getQuote} = require('./utils/iex');
 const {getQuotes} = require('./utils/iex');
+const {getPrice} = require('./utils/iex');
 
 // Any way to get around this?
 let env = require("../env.json");
@@ -262,12 +263,12 @@ app.get("/quote", (req, res) => {
     });
 })
 
-
 // Get Price - 1 ticker
 app.get("/price", (req, res) => {
     let ticker = req.query.symbol;
     getQuote(ticker).then((response) => {
         if (response.status === 200) {
+            console.log(data);
             var data = response.data;
             res.json(data);
         } else {
@@ -278,44 +279,23 @@ app.get("/price", (req, res) => {
     });
 })
 
-app.get("/buy", (req, res) => {
+app.get("/placeOrder", (req, res) => {
     let ticker = req.query.symbol.toUpperCase();
-    let action = req.query.action.toUpperCase();
+    let orderType = req.query.orderType.toUpperCase();
     let quantity = req.query.quantity;
     let portfolioId = req.query.portfolioId;
     let price = req.query.price;
 
-    console.log(ticker, action, quantity, portfolioId, price);
+    console.log(ticker, orderType, quantity, portfolioId, price);
 
     pool.query(`
         INSERT INTO orders (portfolio_id, order_type, symbol, quantity, unit_price) 
         VALUES ($1, $2, $3, $4, $5)`,
-        [portfolioId, action, ticker, quantity, price]
+        [portfolioId, orderType, ticker, quantity, price]
     ).then(result => {
         return res.json(result);
     });
 })
-
-app.get("/sell", (req, res) => {
-    let ticker = req.query.symbol.toUpperCase();
-    let action = req.query.action.toUpperCase();
-    let quantity = req.query.quantity;
-    let portfolioId = req.query.portfolioId;
-    let price = req.query.price;
-
-    console.log(ticker, action, quantity, portfolioId, price);
-
-    pool.query(`
-        INSERT INTO orders (portfolio_id, order_type, symbol, quantity, unit_price) 
-        VALUES ($1, $2, $3, $4, $5)`,
-        [portfolioId, action, ticker, quantity, price]
-    ).then(result => {
-        return res.json(result);
-    });
-})
-
-
-
 
 app.listen(port, hostname, () => {
     console.log(`http://${hostname}:${port}`);

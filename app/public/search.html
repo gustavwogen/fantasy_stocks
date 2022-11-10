@@ -101,7 +101,7 @@
                     console.log(body.companyName, body.latestPrice)
                     latestPrice = body.latestPrice;
                     console.log(latestPrice);
-            let urlBuy = `/buy?symbol=${ticker}&action=buy&quantity=${quantity}&portfolioId=${portfolioId}&price=${latestPrice}`
+            let urlBuy = `/placeOrder?symbol=${ticker}&orderType=BUY&quantity=${quantity}&portfolioId=${portfolioId}&price=${latestPrice}`
             console.log(urlBuy);
             return fetch(urlBuy)
         })
@@ -132,7 +132,7 @@
                     console.log(body.companyName, body.latestPrice)
                     latestPrice = body.latestPrice;
                     console.log(latestPrice);
-            let urlBuy = `/sell?symbol=${ticker}&action=sell&quantity=${quantity}&portfolioId=${portfolioId}&price=${latestPrice}`
+            let urlBuy = `/placeOrder?symbol=${ticker}&orderType=SELL&quantity=${quantity}&portfolioId=${portfolioId}&price=${latestPrice}`
             console.log(urlBuy);
             return fetch(urlBuy)
         })

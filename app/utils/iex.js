@@ -30,3 +30,16 @@ exports.getQuote = async (symbol) => {
         return err.response;
     }
 };
+
+exports.getPrice = async (symbol) => {
+    try {
+        let endpoint = `stock/${symbol}/price`
+        query = `?token=${apiKey}&displayPercent=true`
+        let url = `${baseUrl}/${endpoint}${query}`
+        const response = await axios.get(url);
+        return response;
+    } catch (err) {
+        // Handle Error Here
+        return err.response;
+    }
+};
