@@ -196,6 +196,7 @@ app.get("/", (req, res) => {
     res.sendFile('public/index.html', {root: __dirname})
 })
 
+// Show portfolio 
 app.get("/portfolio", (req, res) => {
     pool.query(
         `SELECT symbol
@@ -229,6 +230,7 @@ app.get("/search", (req, res) => {
     res.render('search');
 });
 
+// Post Quote - 1 ticker
 app.post("/quote", (req, res) => {
     if (req.body.symbol) {
         let ticker = req.body.symbol;
@@ -245,6 +247,7 @@ app.post("/quote", (req, res) => {
     }
 });
 
+// Get quote - Multiple tickers
 app.get("/quote", (req, res) => {
     let ticker = req.query.symbol;
     getQuotes(ticker).then((response) => {
@@ -259,6 +262,8 @@ app.get("/quote", (req, res) => {
     });
 })
 
+
+// Get Price - 1 ticker
 app.get("/price", (req, res) => {
     let ticker = req.query.symbol;
     getQuote(ticker).then((response) => {
