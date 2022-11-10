@@ -79,6 +79,12 @@ const generateAuthToken = () => {
 // Ideally this should be stored in Redis or some other db instead
 const authTokens = {};
 
+app.get('/bootstrap', (req, res) => {
+    res.render('base_index', {
+        test: "fantasyStocks"
+    });
+});
+
 app.get("/user/create", (req, res) => {
     res.render('create_user');
 });
@@ -205,7 +211,7 @@ function requireAuth(req, res, next) {
     }
 };
 
-app.use(requireAuth); // user will need to be logged in to access any route under this line 
+// app.use(requireAuth); // user will need to be logged in to access any route under this line 
 
 
 app.get("/", (req, res) => {
@@ -250,7 +256,22 @@ app.get("/portfolio", (req, res) => {
 })
 
 app.get("/search", (req, res) => {
-    res.render('search');
+    console.log(req.query);
+    let ticker = req.query.ticker;
+    getQuotes(ticker).then((response) => {
+        if (response.status === 200) {
+            var data = response.data;
+            data = data[ticker.toUpperCase()]['quote'];
+            res.render('search_bootstrap', data);
+        } else {
+            console.log("Message: " + response.data);
+            res.status(response.status);
+            res.render('search_bootstrap', {error: response.data});
+        }
+    }).catch((error) => {
+        console.log(error);
+        res.sendStatus(500);
+    });
 });
 
 // Post Quote - 1 ticker

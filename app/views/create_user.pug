@@ -1,52 +1,64 @@
-extends base_layout 
-block style 
-  link(rel="stylesheet", href="/css/signup.css")
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(http-equiv="X-UA-Compatible", content="IE=edge")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    //- Bootstrap CSS
+    link(rel="stylesheet", href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous")
+    
+    link(rel="stylesheet", href="/css/signup.css")
+    title Fantasy Stocks - Create Account
+  body 
+    .text-center
+      form(class="form-signin", action="/user/create", method="POST")
+        h1(class=["h3", "mb-3", "font-weight-normal"]) Create an account
+        
+        label(for="inputUsername", class="sr-only") Username
+        input#username(type="text", name="username", class="form-control", placeholder="Username" required autofocus)
 
-block content
-  .text-center
-    form(class="form-signin", action="/user/create", method="POST")
-      h1(class=["h3", "mb-3", "font-weight-normal"]) Create an account
+        label(for="inputEmail", class="sr-only") Email
+        input#email(type="email", name="email", class="form-control", placeholder="Email" required autofocus)
+
+        label(for="inputPassword", class="sr-only") Password
+        input#password(type="password", name="password", class="form-control", placeholder="Password", onkeyup="checkPassword()" required)
+
+        label(for="inputConfirmPassword", class="sr-only") Confirm Password
+        input#confirmPassword(type="password", name="confirmPassword", class="form-control", placeholder="Confirm Password", onkeyup="checkPassword()" required)
+        button#login(type="submit", class="btn btn-lg btn-primary btn-block") Create account
+        br
+        p Already have an account? #[a(href="/user/login") Sign in]
+        p#passwordMatch(class="text-danger")
+        - var user = user_created
+        if user
+          div(class="alert alert-success", role="alert") User "#{username}" successfully created!
+            button(type="button", class="close", data-dismiss="alert" aria-label="Close")
+              span(aria-hidden="true") &times;
+        - var user_taken = username_taken 
+        if user_taken
+          div#usernameTaken(class="alert alert-danger alert-dismissible fade show", role="alert") Username is already taken
+            button(type="button", class="close" data-dismiss="alert" aria-label="Close")
+              span(aria-hidden="true") &times;
+        div#result(class="text-danger") #{error}
       
-      label(for="inputUsername", class="sr-only") Username
-      input#username(type="text", name="username", class="form-control", placeholder="Username" required autofocus)
-
-      label(for="inputEmail", class="sr-only") Email
-      input#email(type="email", name="email", class="form-control", placeholder="Email" required autofocus)
-
-      label(for="inputPassword", class="sr-only") Password
-      input#password(type="password", name="password", class="form-control", placeholder="Password", onkeyup="checkPassword()" required)
-
-      label(for="inputConfirmPassword", class="sr-only") Confirm Password
-      input#confirmPassword(type="password", name="confirmPassword", class="form-control", placeholder="Confirm Password", onkeyup="checkPassword()" required)
-      button#login(type="submit", class="btn btn-lg btn-primary btn-block") Create account
-      br
-      p Already have an account? #[a(href="/user/login") Sign in]
-      p#passwordMatch(class="text-danger")
-      - var user = user_created
-      if user
-        div(class="alert alert-success", role="alert") User "#{username}" successfully created!
-          button(type="button", class="close", data-dismiss="alert" aria-label="Close")
-            span(aria-hidden="true") &times;
-      - var user_taken = username_taken 
-      if user_taken
-        div#usernameTaken(class="alert alert-danger alert-dismissible fade show", role="alert") Username is already taken
-          button(type="button", class="close" data-dismiss="alert" aria-label="Close")
-            span(aria-hidden="true") &times;
-      div#result(class="text-danger") #{error}
-
-  script.
-    function checkPassword() {
-      let password1 = document.getElementById('password').value
-      let password2 = document.getElementById('confirmPassword').value
-      let errorMessage = document.getElementById('passwordMatch')
-      if(password1 === password2) {
-        errorMessage.style.display = 'none';
-      } else {
-        if (!password1 || !password2) {
+    //- Optional JavaScript
+    //- jQuery first, then Popper.js, then Bootstrap JS
+    script(src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous")
+    script(src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous")
+    script(src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous")
+    script.
+      function checkPassword() {
+        let password1 = document.getElementById('password').value
+        let password2 = document.getElementById('confirmPassword').value
+        let errorMessage = document.getElementById('passwordMatch')
+        if(password1 === password2) {
           errorMessage.style.display = 'none';
         } else {
-          errorMessage.style.display = 'initial';
-          errorMessage.textContent = "Passwords do not match";
+          if (!password1 || !password2) {
+            errorMessage.style.display = 'none';
+          } else {
+            errorMessage.style.display = 'initial';
+            errorMessage.textContent = "Passwords do not match";
+          }
         }
       }
-    }

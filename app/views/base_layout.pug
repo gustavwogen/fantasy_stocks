@@ -9,6 +9,32 @@ html(lang="en")
     block style
     title Document
   body 
+    nav(class="navbar navbar-expand-lg navbar-light bg-ligth")
+      a(class="navbar-brand", href="#")
+      button(class="navbar-toggler", type="button", data-toggle="collapse", data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation") 
+        span(class="navbar-toggler-icon")
+      div#navbarSupportedContent(class="collapse navbar-collapse")
+        ul(class="navbar-nav mr-auto")
+          li(class="nav-item active")
+            a(class="nav-link" href="#") #{test}
+              span(class="sr-only") (current)
+          li(class="nav-item")
+            a(class="nav-link" href="#") Link
+          li(class="nav-item dropdown")
+            a(class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false") Dropdown
+            div(class="dropdown-menu" aria-labelledby="navbarDropdown")
+              a(class="dropdown-item" href="#") Action1
+              a(class="dropdown-item" href="#") Action2
+              div(class="dropdown-divider")
+              a(class="dropdown-item" href="#") Action3
+          li(class="nav-item")
+            a(class="nav-link" href="/user/logout") Sign out
+          li(class="nav-item")
+            a(class="nav-link disabled" href="#") Disabled
+        form(action="/search" method="GET" class="form-inline my-2 my-lg-0")
+          input(class="form-control mr-sm-2" name="ticker" type="search" placeholder="Search stocks" aria-label="Search")
+          button(class="btn btn-outline-success my-2 my-sm-0" type="submit") Search
+
     block content
       
     //- Optional JavaScript
