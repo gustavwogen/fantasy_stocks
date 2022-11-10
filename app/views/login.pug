@@ -1,23 +1,18 @@
-extends layout 
+extends base_layout 
+block style 
+  link(rel="stylesheet", href="/css/signin.css")
 
 block content
-    h2 Log in 
-    table
-        tr 
-            td
-                label(for="username", name="username") Username: 
-            td
-                input#username(type="text")
-        tr 
-            td 
-                label(for="password", name="password") Password:
-            td
-                input#password(type="password")
+  .text-center
+    form(class="form-signin", action="/user/login", method="POST")
+      h1(class=["h3", "mb-3", "font-weight-normal"]) Please sign in
+      label(for="inputEmail", class="sr-only") Username
+      input#username(type="text", name="username", class="form-control", placeholder="Username" required autofocus)
+      label(for="inputPassword", class="sr-only") Password
+      input#password(type="password", name="password", class="form-control", placeholder="Password" required)
+      br
+      button#login(type="submit", class="btn btn-lg btn-primary btn-block") Sign in
 
-    button#login Login
-
-    div#result
+    div#result(class="text-danger") #{error}
 
     p Need an account? Create an account #[a(href="/user/create") here]
-    
-    script(src="/scripts/login.js") 
