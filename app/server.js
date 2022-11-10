@@ -5,6 +5,7 @@ const crypto = require('crypto');
 let cookieParser = require("cookie-parser");
 let sessions = require('express-session');
 const path = require('path')
+let pug = require("pug")
 
 const {getQuote} = require('./utils/iex');
 const {getQuotes} = require('./utils/iex');
@@ -15,6 +16,11 @@ let env = require("../env.json");
 let hostname = "localhost";
 let port = 3000;
 let app = express();
+
+
+app.set(path.join(__dirname, 'views'))
+app.set('view engine', 'pug')
+
 
 // creating 24 hours from milliseconds
 const oneDay = 1000 * 60 * 60 * 24;
@@ -48,7 +54,7 @@ app.use((req, res, next) => {
 });
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static('public'));
 
 let pool = new Pool(env);
 pool.connect().then(() => {
@@ -114,19 +120,24 @@ app.post("/signin", (req, res) => {
                 .compare(plaintextPassword, hashedPassword)
                 .then((passwordMatched) => {
                     if (passwordMatched) {
-                        const authToken = generateAuthToken();
-                        // Store authentication token
-                        authTokens[authToken] = username;
-                        // Setting the auth token in cookies
-                        res.cookie('AuthToken', authToken);
+                        console.log('password mathed');
                         pool.query("SELECT user_id FROM users WHERE username = $1", [
                             username,
                         ]).then((result) => {
+                            console.log(result.rows);
                             if (result.rows.length > 0) {
-                                req.user_id = result.rows[0].user_id;
+                                var user_id = result.rows[0].user_id;
+                                const authToken = generateAuthToken();
+                                // Store authentication token
+                                authTokens[authToken] = {
+                                    username: username,
+                                    user_id: user_id
+                                };
+                                // Setting the auth token in cookies
+                                res.cookie('AuthToken', authToken);
+                                return res.redirect("/");
                             }
                         })
-                        return res.redirect("/");
                     } else {
                         console.log('not matched password');
                          res.status(401).send();
@@ -148,7 +159,9 @@ app.post("/signin", (req, res) => {
 });
 
 app.get('/user/login', function (req, res) {
-    res.sendFile('public/login.html' , { root : __dirname});
+    console.log('user login')
+    // res.sendFile('public/login.html' , { root : __dirname});
+    res.render('login');
 });
 
 app.get("/user/logout", (req,res) => {
@@ -157,7 +170,7 @@ app.get("/user/logout", (req,res) => {
 });
 
 app.get("/user/create", (req, res) => {
-    res.sendFile('public/create.html' , { root : __dirname});
+    res.render('create');
 });
 
 function requireAuth(req, res, next) {
@@ -176,10 +189,14 @@ app.get("/", (req, res) => {
     let user = req.user; 
     // we can access the username of the currently logged in user this way
     // lets us query data from the database
-    console.log(user);
-    res.sendFile('public/index.html' , { root : __dirname});
+    // res.render('home', {
+    //     user_id: user.user_id,
+    //     username: user.username,
+    // })
+    res.sendFile('public/index.html', {root: __dirname})
 })
 
+// Show portfolio 
 app.get("/portfolio", (req, res) => {
     pool.query(
         `SELECT symbol
@@ -210,9 +227,10 @@ app.get("/portfolio", (req, res) => {
 })
 
 app.get("/search", (req, res) => {
-    res.sendFile('public/search.html' , { root : __dirname});
+    res.render('search');
 });
 
+// Post Quote - 1 ticker
 app.post("/quote", (req, res) => {
     if (req.body.symbol) {
         let ticker = req.body.symbol;
@@ -229,6 +247,7 @@ app.post("/quote", (req, res) => {
     }
 });
 
+// Get quote - Multiple tickers
 app.get("/quote", (req, res) => {
     let ticker = req.query.symbol;
     getQuotes(ticker).then((response) => {
@@ -243,6 +262,7 @@ app.get("/quote", (req, res) => {
     });
 })
 
+// Get Price - 1 ticker
 app.get("/price", (req, res) => {
     let ticker = req.query.symbol;
     getQuote(ticker).then((response) => {
