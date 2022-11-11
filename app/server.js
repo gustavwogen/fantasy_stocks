@@ -9,12 +9,14 @@ var upload = multer();
 let sessions = require('express-session');
 const path = require('path')
 let pug = require("pug")
+const asyncHandler = require('express-async-handler')
 
 const {getQuote} = require('./utils/iex');
 const {getQuotes} = require('./utils/iex');
 const {getPrice} = require('./utils/iex');
-const {buyOrderCash} = require('./utils/postgres');
+const {buyOrderCash, getQuantity} = require('./utils/postgres');
 const {sellOrderCash} = require('./utils/postgres');
+const {getCash} = require('./utils/postgres');
 
 // Any way to get around this?
 let env = require("../env.json");
@@ -228,8 +230,9 @@ app.get("/", (req, res) => {
 
 // Show portfolio 
 app.get("/portfolio", (req, res) => {
+    portfolioId = req.query.portfolioId;
     pool.query(
-        `SELECT symbol
+        `SELECT symbol, portfolio_id
             ,sum(CASE 
                     WHEN order_type = 'BUY'
                         THEN quantity*unit_price
@@ -249,8 +252,9 @@ app.get("/portfolio", (req, res) => {
                 (CASE WHEN order_type = 'SELL' THEN quantity ELSE 0 END))
                 as quantity
         FROM orders
-        GROUP BY symbol
-        ORDER BY symbol;`
+        WHERE portfolio_id=$1
+        GROUP BY symbol, portfolio_id
+        ORDER BY symbol;`, [portfolioId]
     ).then(result => {
         return res.json({"rows": result.rows});
     });
@@ -326,29 +330,50 @@ app.get("/price", (req, res) => {
     });
 })
 
-app.get("/placeOrder", (req, res) => {
+app.get("/placeOrder", asyncHandler(async (req, res) => {
     let ticker = req.query.symbol.toUpperCase();
     let orderType = req.query.orderType.toUpperCase();
     let quantity = req.query.quantity;
     let portfolioId = req.query.portfolioId;
     let price = req.query.price;
 
+    let cashResponse = await getCash(portfolioId);
+    let currentCash = cashResponse[0].cash;
     totalValue = quantity*price;
-    if (orderType === 'BUY') {
+    let run = false;
+
+    let quantityResponse = await getQuantity(portfolioId, ticker)
+    let totalQuantity = quantityResponse[0].quantity
+    console.log(totalQuantity);
+
+    console.log(`${totalValue} < ${currentCash}`);
+    console.log(`${quantity} < ${totalQuantity}`);
+
+    if ((orderType === 'BUY') &&  (currentCash > totalValue)) {
         buyOrderCash(totalValue, portfolioId);
-    } else if (orderType === 'SELL') {
+        run = true;
+    } else if ((orderType === 'SELL') && (quantity < totalQuantity)) {
         sellOrderCash(totalValue, portfolioId);
+        run = true
+    } else if ((orderType === 'BUY') && (currentCash < totalValue)) {
+        console.log("Not enough cash");
+        return res.json("Not enough cash");
+    } else if ((orderType === 'SELL') && (quantity > totalQuantity)) {
+        console.log("Do not own required quantity");
+        return res.json("Do not own required quantity");
     }
     
-    console.log(ticker, orderType, quantity, portfolioId, price);
-    pool.query(`
-        INSERT INTO orders (portfolio_id, order_type, symbol, quantity, unit_price) 
-        VALUES ($1, $2, $3, $4, $5);`,
-        [portfolioId, orderType, ticker, quantity, price]
-    ).then(result => {
-        return res.json(result);
-    });
-})
+    if (run) {
+        console.log(ticker, orderType, quantity, portfolioId, price);
+        pool.query(`
+            INSERT INTO orders (portfolio_id, order_type, symbol, quantity, unit_price) 
+            VALUES ($1, $2, $3, $4, $5);`,
+            [portfolioId, orderType, ticker, quantity, price]
+        ).then(result => {
+            return res.json(result);
+        });
+    }
+}))
 
 app.get("/cash", (req, res) => {
     let portfolioId = req.query.portfolioId;
@@ -359,8 +384,6 @@ app.get("/cash", (req, res) => {
         return res.json(result);
     });
 })
-
-//UPDATE portfolios set cash=cash-{TOTALVALUE} where portfolio_id={ID};
 
 
 app.listen(port, hostname, () => {
