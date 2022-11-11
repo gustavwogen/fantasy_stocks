@@ -26,13 +26,13 @@ buyButton.addEventListener("click", () => {
 });
 
 sellButton.addEventListener("click", () => {
-    let quantity = document.getElementById('quantityBuy').value;
+    let quantity = document.getElementById('quantitySell').value;
     let unitPrice = document.getElementById('latestPrice').textContent;
     let symbol = document.getElementById('buyModalTitle').textContent.slice(4);
     let orderType = 'SELL';
     let portfolioId = 1;
     let query = `symbol=${symbol}&orderType=${orderType}&portfolioId=${portfolioId}&price=${unitPrice}&quantity=${quantity}`
-
+    console.log(quantity);
     fetch(`/placeOrder?${query}`).then((response) => {
         if (response.ok) {
             response.json().then((data) => {

@@ -13,6 +13,8 @@ let pug = require("pug")
 const {getQuote} = require('./utils/iex');
 const {getQuotes} = require('./utils/iex');
 const {getPrice} = require('./utils/iex');
+const {buyOrderCash} = require('./utils/postgres');
+const {sellOrderCash} = require('./utils/postgres');
 
 // Any way to get around this?
 let env = require("../env.json");
@@ -332,10 +334,11 @@ app.get("/placeOrder", (req, res) => {
     let price = req.query.price;
 
     totalValue = quantity*price;
-
-    //     pool.query(`
-    //         UPDATE portfolios set cash=cash-$1 where portfolio_id=$2;`
-    //         [totalValue, portfolioId])
+    if (orderType === 'BUY') {
+        buyOrderCash(totalValue, portfolioId);
+    } else if (orderType === 'SELL') {
+        sellOrderCash(totalValue, portfolioId);
+    }
     
     console.log(ticker, orderType, quantity, portfolioId, price);
     pool.query(`

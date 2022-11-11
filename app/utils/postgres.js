@@ -14,6 +14,30 @@ const getPortfolios = async (userId)=> {
     }
 }
 
+const buyOrderCash = async (totalValue, portfolioId)=> {
+    try {
+        const client = await pool.connect();
+        const result = await client.query(`UPDATE portfolios set cash=cash-$1 where portfolio_id=$2;`,[totalValue, portfolioId])
+        await client.end()
+        return result.rows;
+    } catch (error) {
+        return error;
+    }
+}
+
+const sellOrderCash = async (totalValue, portfolioId)=> {
+    try {
+        const client = await pool.connect();
+        const result = await client.query(`UPDATE portfolios set cash=cash+$1 where portfolio_id=$2;`,[totalValue, portfolioId])
+        await client.end()
+        return result.rows;
+    } catch (error) {
+        return error;
+    }
+}
+
 module.exports = {
-    getPortfolios
+    getPortfolios,
+    buyOrderCash,
+    sellOrderCash,
 }

@@ -185,35 +185,7 @@ fetch(url).then((response) => {
         message.textContent = "Something went wrong";
 })
 
-// .then(document.getElementById("AAPLbuy").addEventListener("click", () => {
-//     let ticker = getElementById("APPLticker").value;
-//     let quantity = getElementById("APPLquantity").value;
-//     let latestPrice = 0;
-//     let portfolioId = 1;
-//     fetch(`/price?symbol=${ticker}`).then((response) => {
-//         if (response.status === 200) {
-//             response.json().then(body => {
-//                 console.log(body.companyName, body.latestPrice)
-//                 latestPrice = body.latestPrice;
-//                 console.log(latestPrice);
-//         let urlBuy = `/placeOrder?symbol=${ticker}&orderType=BUY&quantity=${quantity}&portfolioId=${portfolioId}&price=${latestPrice}`
-//         console.log(urlBuy);
-//         return fetch(urlBuy)
-//     })
-//     .then(response => {
-//         response.json().then(body => {
-//             message.textContent = `Bought ${quantity} ${ticker}`;
-//             console.log(body);
-//         })
-//     })
-//         } else {
-//             response.json().then((errorBody) => {
-//                 console.log(errorBody)
-//             })
-//         }
-//     })
-// })
-// )
+
 </script>
 
 </body>
