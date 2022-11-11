@@ -8,7 +8,6 @@ var multer = require('multer');
 var upload = multer();
 let sessions = require('express-session');
 const path = require('path')
-let pug = require("pug")
 const asyncHandler = require('express-async-handler')
 
 const {getQuote} = require('./utils/iex');
@@ -61,6 +60,8 @@ app.use((req, res, next) => {
 
     // Inject the user to the request
     req.user = authTokens[authToken];
+    res.locals.user = req.user;
+    console.log(res.locals);
     next();
 });
 
@@ -83,11 +84,14 @@ const generateAuthToken = () => {
 // Ideally this should be stored in Redis or some other db instead
 const authTokens = {};
 
-app.get('/bootstrap', (req, res) => {
+app.get('/bootstrap', asyncHandler(async (req, res) => {
+    var portfolios = await db.getPortfolios(2);
+    console.log('portfolios', portfolios);
     res.render('base_index', {
-        test: "fantasyStocks"
+        test: "fantasyStocks",
+        portfolios: portfolios
     });
-});
+}));
 
 app.get("/user/create", (req, res) => {
     res.render('create_user');
@@ -265,7 +269,7 @@ app.get("/search", (req, res) => {
         res.render("search_bootstrap");
     } else {
         let ticker = req.query.ticker;
-        getQuotes(ticker).then((response) => {
+        iex.getQuotes(ticker).then((response) => {
             if (response.status === 200) {
                 var data = response.data;
                 data = data[ticker.toUpperCase()]['quote'];
@@ -286,7 +290,7 @@ app.get("/search", (req, res) => {
 app.post("/quote", (req, res) => {
     if (req.body.symbol) {
         let ticker = req.body.symbol;
-        getQuote(ticker).then((response) => {
+        iex.getQuote(ticker).then((response) => {
             if (response.status === 200) {
                 var data = response.data;
                 return res.json(data);
@@ -302,7 +306,7 @@ app.post("/quote", (req, res) => {
 // Get quote - Multiple tickers
 app.get("/quote", (req, res) => {
     let ticker = req.query.symbol;
-    getQuotes(ticker).then((response) => {
+    iex.getQuotes(ticker).then((response) => {
         if (response.status === 200) {
             var data = response.data;
             res.json(data);
@@ -317,7 +321,7 @@ app.get("/quote", (req, res) => {
 // Get Price - 1 ticker
 app.get("/price", (req, res) => {
     let ticker = req.query.symbol;
-    getQuote(ticker).then((response) => {
+    iex.getQuote(ticker).then((response) => {
         if (response.status === 200) {
             console.log(data);
             var data = response.data;

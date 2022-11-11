@@ -8,7 +8,7 @@ const getPortfolios = async (userId)=> {
         const client = await pool.connect();
         const result = await client.query('SELECT * from portfolios where user_id = $1', [userId])
         await client.end()
-        return result.rows;
+        return result.map;
     } catch (error) {
         return error;
     }
