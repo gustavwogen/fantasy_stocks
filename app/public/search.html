@@ -134,7 +134,7 @@
                 response.json().then(body => {
                     console.log(body.companyName, body.latestPrice)
                     latestPrice = body.latestPrice;
-                    console.log(latestPrice);
+                    console.log(latestPrice,quantity);
             let urlBuy = `/placeOrder?symbol=${ticker}&orderType=SELL&quantity=${quantity}&portfolioId=${portfolioId}&price=${latestPrice}`
             console.log(urlBuy);
             return fetch(urlBuy)

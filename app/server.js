@@ -13,6 +13,8 @@ let pug = require("pug")
 const {getQuote} = require('./utils/iex');
 const {getQuotes} = require('./utils/iex');
 const {getPrice} = require('./utils/iex');
+const {buyOrderCash} = require('./utils/postgres');
+const {sellOrderCash} = require('./utils/postgres');
 
 // Any way to get around this?
 let env = require("../env.json");
@@ -331,16 +333,35 @@ app.get("/placeOrder", (req, res) => {
     let portfolioId = req.query.portfolioId;
     let price = req.query.price;
 
+    totalValue = quantity*price;
+    if (orderType === 'BUY') {
+        buyOrderCash(totalValue, portfolioId);
+    } else if (orderType === 'SELL') {
+        sellOrderCash(totalValue, portfolioId);
+    }
+    
     console.log(ticker, orderType, quantity, portfolioId, price);
-
     pool.query(`
         INSERT INTO orders (portfolio_id, order_type, symbol, quantity, unit_price) 
-        VALUES ($1, $2, $3, $4, $5)`,
+        VALUES ($1, $2, $3, $4, $5);`,
         [portfolioId, orderType, ticker, quantity, price]
     ).then(result => {
         return res.json(result);
     });
 })
+
+app.get("/cash", (req, res) => {
+    let portfolioId = req.query.portfolioId;
+    pool.query(`
+        SELECT portfolio_id, cash from portfolios where portfolio_id=$1`,
+        [portfolioId]
+    ).then(result => {
+        return res.json(result);
+    });
+})
+
+//UPDATE portfolios set cash=cash-{TOTALVALUE} where portfolio_id={ID};
+
 
 app.listen(port, hostname, () => {
     console.log(`http://${hostname}:${port}`);
