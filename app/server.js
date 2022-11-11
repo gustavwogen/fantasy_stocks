@@ -329,16 +329,34 @@ app.get("/placeOrder", (req, res) => {
     let portfolioId = req.query.portfolioId;
     let price = req.query.price;
 
-    console.log(ticker, orderType, quantity, portfolioId, price);
+    totalValue = quantity*price;
 
+    //     pool.query(`
+    //         UPDATE portfolios set cash=cash-$1 where portfolio_id=$2;`
+    //         [totalValue, portfolioId])
+    
+    console.log(ticker, orderType, quantity, portfolioId, price);
     pool.query(`
         INSERT INTO orders (portfolio_id, order_type, symbol, quantity, unit_price) 
-        VALUES ($1, $2, $3, $4, $5)`,
+        VALUES ($1, $2, $3, $4, $5);`,
         [portfolioId, orderType, ticker, quantity, price]
     ).then(result => {
         return res.json(result);
     });
 })
+
+app.get("/cash", (req, res) => {
+    let portfolioId = req.query.portfolioId;
+    pool.query(`
+        SELECT portfolio_id, cash from portfolios where portfolio_id=$1`,
+        [portfolioId]
+    ).then(result => {
+        return res.json(result);
+    });
+})
+
+//UPDATE portfolios set cash=cash-{TOTALVALUE} where portfolio_id={ID};
+
 
 app.listen(port, hostname, () => {
     console.log(`http://${hostname}:${port}`);
