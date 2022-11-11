@@ -136,7 +136,6 @@ app.get('/user/login', (req, res) => {
 });
 
 app.post("/user/login", (req, res) => {
-    console.log('hello');
     console.log(req.body);
     let username = req.body.username;
     let plaintextPassword = req.body.password;
@@ -256,22 +255,25 @@ app.get("/portfolio", (req, res) => {
 })
 
 app.get("/search", (req, res) => {
-    console.log(req.query);
-    let ticker = req.query.ticker;
-    getQuotes(ticker).then((response) => {
-        if (response.status === 200) {
-            var data = response.data;
-            data = data[ticker.toUpperCase()]['quote'];
-            res.render('search_bootstrap', data);
-        } else {
-            console.log("Message: " + response.data);
-            res.status(response.status);
-            res.render('search_bootstrap', {error: response.data});
-        }
-    }).catch((error) => {
-        console.log(error);
-        res.sendStatus(500);
-    });
+    if (!req.query.ticker) {
+        res.render("search_bootstrap");
+    } else {
+        let ticker = req.query.ticker;
+        getQuotes(ticker).then((response) => {
+            if (response.status === 200) {
+                var data = response.data;
+                data = data[ticker.toUpperCase()]['quote'];
+                res.render('search_bootstrap', data);
+            } else {
+                console.log("Message: " + response.data);
+                res.status(response.status);
+                res.render('search_bootstrap', {error: response.data});
+            }
+        }).catch((error) => {
+            console.log(error);
+            res.sendStatus(500);
+        });
+    }
 });
 
 // Post Quote - 1 ticker

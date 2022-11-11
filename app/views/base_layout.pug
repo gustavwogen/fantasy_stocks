@@ -6,8 +6,9 @@ html(lang="en")
     meta(name="viewport", content="width=device-width, initial-scale=1.0")
     //- Bootstrap CSS
     link(rel="stylesheet", href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous")
+    script(src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js") 
     block style
-    title Document
+    title Fantasy Stocks
   body 
     nav(class="navbar navbar-expand-lg navbar-light bg-ligth")
       a(class="navbar-brand", href="#")
@@ -21,12 +22,19 @@ html(lang="en")
           li(class="nav-item")
             a(class="nav-link" href="#") Link
           li(class="nav-item dropdown")
-            a(class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false") Dropdown
+            a(class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false") Portfolios
             div(class="dropdown-menu" aria-labelledby="navbarDropdown")
-              a(class="dropdown-item" href="#") Action1
-              a(class="dropdown-item" href="#") Action2
+              a(class="dropdown-item" href="#") Portfolio 1
+              a(class="dropdown-item" href="#") Portfolio 2
               div(class="dropdown-divider")
-              a(class="dropdown-item" href="#") Action3
+              a(class="dropdown-item" href="#") Create new portfolio
+          li(class="nav-item dropdown")
+            a(class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false") Games
+            div(class="dropdown-menu" aria-labelledby="navbarDropdown")
+              a(class="dropdown-item" href="#") Game 1
+              a(class="dropdown-item" href="#") Game 2
+              div(class="dropdown-divider")
+              a(class="dropdown-item" href="#") Create new game
           li(class="nav-item")
             a(class="nav-link" href="/user/logout") Sign out
           li(class="nav-item")
