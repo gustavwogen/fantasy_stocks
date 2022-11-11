@@ -54,5 +54,3 @@ values
 
 INSERT INTO users_games(user_id, game_id)
 values (1, 1);
-
-select * from orders where portfolio_id = 1;
