@@ -32,6 +32,8 @@
         <tbody id="portfolio"></tbody>
     </table>
     <div id="message"></div>
+    <p></p>
+    <div id="cash">Available Cash: </div>
 <script>
 
 let dollarUS = Intl.NumberFormat("en-US", {
@@ -40,9 +42,28 @@ let dollarUS = Intl.NumberFormat("en-US", {
 });
 
 let container = document.getElementById("portfolio");
+let cashContainer = document.getElementById("cash");
 let tickerList = [];
 let originTotal = 0;
 let currentTotal = 0;
+let portfolioId = 1;
+
+cash = document.createElement('a');
+cashContainer.style.fontWeight = 'bold'; cashContainer.style.fontSize = "large";
+cash.style.fontWeight = 'bold'; cash.style.fontSize = "large";
+cashContainer.append(cash);
+
+fetch(`/cash?portfolioId=${portfolioId}`).then((response) => { 
+    if (response.status === 200) {
+        response.json().then(body => {
+            console.log(body.rows[0].cash);
+            cash.textContent = dollarUS.format(body.rows[0].cash);
+            // for (let i=0; i<body.rows.length; i++) {  
+            //     console.log(body.rows[i])
+            //    }
+        })
+    }
+})
 
 let url = `/portfolio`
 fetch(url).then((response) => {
@@ -107,7 +128,6 @@ fetch(url).then((response) => {
         empty6 = document.createElement("td"); empty6.textContent = ""; row.append(empty6);
         displayTotal = document.createElement("td"); row.append(displayTotal);
         totalYield = document.createElement("td"); row.append(totalYield);
-
 
         let url2 = `/quote?symbol=${tickerList}`
         console.log(url2)
