@@ -243,6 +243,38 @@ app.get("/quote", (req, res) => {
     });
 })
 
+app.post("/create/portfolio", (req, res) => {
+    let userID = req.body.user_id;
+    let plaintextPassword = req.body.plaintextPassword;
+    let email = req.body.email;
+
+    bcrypt
+        .hash(plaintextPassword, saltRounds)
+        .then((hashedPassword) => {
+            pool.query(
+                "INSERT INTO portfolios (user_id, name, cash, created_at) VALUES ($1, $2, $3)",
+                [username, hashedPassword, email]
+            )
+                .then(() => {
+                    // account created
+                    console.log(username, "account created");
+                    res.status(200).send();
+                })
+                .catch((error) => {
+                    // insert failed
+                    if (error.detail === `Key (username)=(${username}) already exists.`) {
+                        return res.status(401).send("Username is already taken.");
+                    }
+                    return res.status(500).send("Account creation failed");
+                });
+        })
+        .catch((error) => {
+            // bcrypt crashed
+            console.log(error);
+            res.status(500).send();
+        });
+});
+
 app.listen(port, hostname, () => {
     console.log(`http://${hostname}:${port}`);
 });
