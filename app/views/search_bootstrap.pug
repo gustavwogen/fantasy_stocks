@@ -2,34 +2,98 @@ extends base_layout
 
 block content
 
-    div(class="container")
-        if error 
-            p= error 
-        else 
-            h3= `${companyName} (${symbol})`
-            div(class="container")
-                h1= latestPrice
+  div#mainContainer(class="container")
+    div#successfulOrder(class="alert alert-success alert-dismissable fade show" style="display: none" role="alert")
+      button(type="button" class="close" aria-label="Close" onclick="$('.alert').hide()")
+        span(aria-hidden="true") &times;
+    if error 
+      p= error 
+    else if symbol
+      h3= `${companyName} (${symbol})`
+      div(class="container")
+        h1#latestPrice= latestPrice
 
-    //- li
-    //-     a(href="/") Home page 
-    
-    //- form#form(action="")
-    //-     label Search for stock:
-    //-         input#ticker-search(type="text", name="ticker")
-    //-     br
-    //-     button(type="submit") Search 
-    
-    //- div#successful-search
-    //-     div#company-info 
-    //-         h3#company-name 
-    //-         input(id="quantity", type="number", name="quantity", placeholder="Quantity")
-    //-         button(id="buy") Buy
-    //-         button(id="sell") Sell
-    //-         div#price-container 
-    //-             h1#price
-    //-             h3#change-price 
-    //-             h3#change-percent 
-    
-    //- div#error-message
+      div(class="container")
 
-    //- script(src="/scripts/search_stock.js") 
+        button(type="button" class="btn btn-success" data-toggle="modal" data-target="#buyModal")
+          Launch Buy
+        
+        button(type="button" class="ml-3 btn btn-danger" data-toggle="modal" data-target="#sellModal")
+          Launch Sell
+      
+      div#buyModal(class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true")
+        div(class="modal-dialog modal-dialog-centered" role="document")
+          div(class="modal-content")
+            div(class="modal-header")
+              h5#buyModalTitle(class="modal-title") Buy #{symbol}
+              button(type="button" class="close" data-dismiss="modal" aria-label="Close")
+                span(aria-hidden="true") &times;
+            div(class="modal-body")
+              div(class="form-group")
+                label(for="quantityBuy") Quantity
+                input#quantityBuy(type="number" class="form-control" name="quantityBuy" value="0" min="1" oninput="calculateTotalBuy()" required)
+                h2#totalPriceBuy(class="pt-2")
+
+            div(class="modal-footer")
+              button(type="button" class="btn btn-secondary" data-dismiss="modal") Close
+              button#buyButton(type="button" class="btn btn-success" data-dismiss="modal") Buy
+      
+      div#sellModal(class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true")
+        div(class="modal-dialog modal-dialog-centered" role="document")
+          div(class="modal-content")
+            div(class="modal-header")
+              h5#exampleModalLongTitle(class="modal-title") Buy #{symbol}
+              button(type="button" class="close" data-dismiss="modal" aria-label="Close")
+                span(aria-hidden="true") &times;
+            div(class="modal-body")
+              div(class="form-group")
+                label(for="quantitySell") Quantity
+                input#quantitySell(type="number" class="form-control" name="quantitySell" value="0" min="1" oninput="calculateTotalSell()" required)
+                h2#totalPriceSell(class="pt-2")
+
+            div(class="modal-footer")
+              button(type="button" class="btn btn-secondary" data-dismiss="modal") Close
+              button#sellButton(type="button" class="btn btn-danger" data-dismiss="modal") Sell
+
+      
+  script(src="/scripts/search.js")   
+  script.
+    function calculateTotalBuy() {
+      let quantity = document.getElementById('quantityBuy').value
+      document.getElementById('totalPriceBuy').textContent = `Total: ${(Math.round(quantity * #{latestPrice} * 100) / 100).toFixed(2)}`;
+    }
+
+    function calculateTotalSell() {
+      let quantity = document.getElementById('quantitySell').value
+      let unitPrice = document.getElementById('latestPrice')
+      document.getElementById('totalPriceSell').textContent = `Total: ${(Math.round(quantity * #{latestPrice} * 100) / 100).toFixed(2)}`;
+    } 
+            
+
+    
+
+
+//- <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter">
+//-   Launch demo modal
+//- </button>
+
+//- <!-- Modal -->
+//- <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+//-   <div class="modal-dialog modal-dialog-centered" role="document">
+//-     <div class="modal-content">
+//-       <div class="modal-header">
+//-         <h5 class="modal-title" id="exampleModalLongTitle">Modal title</h5>
+//-         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+//-           <span aria-hidden="true">&times;</span>
+//-         </button>
+//-       </div>
+//-       <div class="modal-body">
+//-         ...
+//-       </div>
+//-       <div class="modal-footer">
+//-         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+//-         <button type="button" class="btn btn-primary">Save changes</button>
+//-       </div>
+//-     </div>
+//-   </div>
+//- </div>
