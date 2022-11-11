@@ -10,12 +10,8 @@ let sessions = require('express-session');
 const path = require('path')
 const asyncHandler = require('express-async-handler')
 
-const {getQuote} = require('./utils/iex');
-const {getQuotes} = require('./utils/iex');
-const {getPrice} = require('./utils/iex');
-const {buyOrderCash, getQuantity} = require('./utils/postgres');
-const {sellOrderCash} = require('./utils/postgres');
-const {getCash} = require('./utils/postgres');
+let iex = require('./utils/iex');
+let db = require('./utils/postgres');
 
 // Any way to get around this?
 let env = require("../env.json");
@@ -341,12 +337,12 @@ app.get("/placeOrder", asyncHandler(async (req, res) => {
     let portfolioId = req.query.portfolioId;
     let price = req.query.price;
 
-    let cashResponse = await getCash(portfolioId);
+    let cashResponse = await db.getCash(portfolioId);
     let currentCash = cashResponse[0].cash;
     totalValue = quantity*price;
     let run = false;
 
-    let quantityResponse = await getQuantity(portfolioId, ticker)
+    let quantityResponse = await db.getQuantity(portfolioId, ticker)
     let totalQuantity = quantityResponse[0].quantity
     console.log(totalQuantity);
 
@@ -354,10 +350,10 @@ app.get("/placeOrder", asyncHandler(async (req, res) => {
     console.log(`${quantity} < ${totalQuantity}`);
 
     if ((orderType === 'BUY') &&  (currentCash > totalValue)) {
-        buyOrderCash(totalValue, portfolioId);
+        db.buyOrderCash(totalValue, portfolioId);
         run = true;
     } else if ((orderType === 'SELL') && (quantity < totalQuantity)) {
-        sellOrderCash(totalValue, portfolioId);
+        db.sellOrderCash(totalValue, portfolioId);
         run = true
     } else if ((orderType === 'BUY') && (currentCash < totalValue)) {
         console.log("Not enough cash");
