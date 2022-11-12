@@ -245,19 +245,19 @@ app.get("/quote", (req, res) => {
 
 app.post("/create/portfolio", (req, res) => {
     let userID = req.body.user_id;
-    let plaintextPassword = req.body.plaintextPassword;
-    let email = req.body.email;
+    let name = req.body.name;
+    let cash = req.body.cash;
 
     bcrypt
         .hash(plaintextPassword, saltRounds)
         .then((hashedPassword) => {
             pool.query(
-                "INSERT INTO portfolios (user_id, name, cash, created_at) VALUES ($1, $2, $3)",
-                [username, hashedPassword, email]
+                "INSERT INTO portfolios (user_id, name, cash, created_at) VALUES ($1, $2, $3, $4)",
+                [userID, name, cash, ]
             )
                 .then(() => {
                     // account created
-                    console.log(username, "account created");
+                    console.log(name, "portfolio created");
                     res.status(200).send();
                 })
                 .catch((error) => {
