@@ -22,17 +22,26 @@ VALUES
 INSERT INTO orders 
 (portfolio_id, order_type, symbol, quantity, unit_price)
 VALUES 
-(1, 'BUY', 'AAPL', 10, 140.23),
-(1, 'BUY', 'TSLA', 1, 300.4),
-(1, 'SELL', 'AAPL', 3, 132.23),
+(1, 'BUY', 'AAPL', 40, 100.23),
+(1, 'BUY', 'TSLA', 10, 40.4),
+(1, 'BUY', 'MMM', 300, 100.23),
 (1, 'BUY', 'GOOG', 5, 139.23),
+(1, 'BUY', 'GOOG', 40, 80.23),
+(1, 'SELL', 'AAPL', 3, 132.23),
 (1, 'SELL', 'AAPL', 1, 139.23),
 (1, 'SELL', 'AAPL', 2, 143.23),
-(1, 'BUY', 'MMM', 2, 100.23),
-(1, 'SELL', 'MMM', 1, 140.23),
 (1, 'SELL', 'GOOG', 2, 150),
-(1, 'SELL', 'GOOG', 2, 142)
+(1, 'SELL', 'GOOG', 2, 142),
+(1, 'SELL', 'MMM', 2, 100.23)
 ;
+
+UPDATE portfolios SET cash = cash - (
+    select
+    sum((case when order_type = 'BUY' then 1 else -1 end) * quantity * unit_price) as total
+    from orders
+    where portfolio_id=1
+)
+where user_id = 1;
 
 -- Portfolio "2nd portfolio"
 INSERT INTO orders 

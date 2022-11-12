@@ -17,8 +17,11 @@ const getPortfolios = async (userId)=> {
 const getCash = async (portfolioId)=> {
     try {
         const client = await pool.connect();
+        console.log("client");
         const result = await client.query(`SELECT portfolio_id, cash from portfolios where portfolio_id=$1`, [portfolioId])
+        console.log("result");
         await client.end()
+        console.log("client close");
         return result.rows;
     } catch (error) {
         return error;
@@ -61,6 +64,28 @@ const getQuantity = async (portfolioId, ticker)=> {
     }
 }
 
+const getPortfolioHoldings = async (portfolioId) => {
+    try {
+        const client = await pool.connect();
+        const result = await client.query(
+            `SELECT 
+             symbol,
+             sum(CASE WHEN order_type = 'BUY' THEN quantity*unit_price ELSE 0 END) AS BuyAmount,
+             sum(CASE WHEN order_type = 'SELL' THEN quantity*unit_price ELSE 0 END) AS SellAmount,
+             sum((case when order_type = 'BUY' then 1 else -1 end) * quantity * unit_price) as total,
+             sum((case when order_type = 'BUY' then 1 else -1 end) * quantity) as quantity
+             FROM orders
+             WHERE portfolio_id=$1
+             GROUP BY symbol, portfolio_id
+             ORDER BY symbol;`, [portfolioId]
+        )
+        await client.end();
+        return result.rows;
+    } catch (error) {
+        return error;
+    }
+}
+
 const buyOrderCash = async (totalValue, portfolioId)=> {
     try {
         const client = await pool.connect();
@@ -85,6 +110,7 @@ const sellOrderCash = async (totalValue, portfolioId)=> {
 
 module.exports = {
     getPortfolios,
+    getPortfolioHoldings,
     buyOrderCash,
     sellOrderCash,
     getCash,

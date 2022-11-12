@@ -8,15 +8,11 @@ var multer = require('multer');
 var upload = multer();
 let sessions = require('express-session');
 const path = require('path')
-let pug = require("pug")
 const asyncHandler = require('express-async-handler')
+require('express-async-errors')
 
-const {getQuote} = require('./utils/iex');
-const {getQuotes} = require('./utils/iex');
-const {getPrice} = require('./utils/iex');
-const {buyOrderCash, getQuantity} = require('./utils/postgres');
-const {sellOrderCash} = require('./utils/postgres');
-const {getCash} = require('./utils/postgres');
+let iex = require('./utils/iex');
+let db = require('./utils/postgres');
 
 // Any way to get around this?
 let env = require("../env.json");
@@ -61,8 +57,10 @@ app.use((req, res, next) => {
 
     // Inject the user to the request
     req.user = authTokens[authToken];
+    res.locals.user = req.user;
     next();
 });
+
 
 app.use(express.json());
 app.use(express.static('public'));
@@ -83,11 +81,37 @@ const generateAuthToken = () => {
 // Ideally this should be stored in Redis or some other db instead
 const authTokens = {};
 
-app.get('/bootstrap', (req, res) => {
+app.get('/bootstrap', asyncHandler(async (req, res) => {
+    var portfolios = await db.getPortfolios(1);
+    var holdings = await db.getPortfolioHoldings(1);
+    console.log(holdings);
     res.render('base_index', {
-        test: "fantasyStocks"
+        test: "fantasyStocks",
+        portfolios: portfolios
     });
-});
+}));
+
+app.get("/portfolio/:portfolioId", asyncHandler(async (req, res) => {
+    let portfolioId = req.params.portfolioId;
+    var portfolioCash = await db.getCash(portfolioId);
+    console.log("portfolio cash");
+    var holdings = await db.getPortfolioHoldings(portfolioId);
+    console.log("holdings");
+    let tickerList = holdings.map(row => row.symbol);
+    var portfolioStockValue = holdings.reduce((a, row) => a + parseFloat(row.total), 0);
+    var quotes = await iex.getQuotes(tickerList.join());
+    console.log("iex data");
+    quotes = quotes.data;
+    holdings.forEach((row) => {
+        quotes[row.symbol]['portfolio'] = row
+    });
+    res.render('portfolio', {
+        holdings: Object.values(quotes),
+        cash: portfolioCash[0].cash,
+        portfolioStockValue: portfolioStockValue,
+        totalPortfolioValue: portfolioStockValue + parseFloat(portfolioCash[0].cash)
+    });
+}));
 
 app.get("/user/create", (req, res) => {
     res.render('create_user');
@@ -232,61 +256,42 @@ app.get("/", (req, res) => {
 app.get("/portfolio", (req, res) => {
     portfolioId = req.query.portfolioId;
     pool.query(
-        `SELECT symbol, portfolio_id
-            ,sum(CASE 
-                    WHEN order_type = 'BUY'
-                        THEN quantity*unit_price
-                    ELSE 0
-                    END) AS BuyAmount
-            ,sum(CASE 
-                    WHEN order_type = 'SELL'
-                        THEN quantity*unit_price
-                    ELSE 0
-                    END) AS SellAmount
-            ,sum((CASE WHEN order_type = 'BUY' THEN quantity*unit_price ELSE 0 END)
-                -
-                (CASE WHEN order_type = 'SELL' THEN quantity*unit_price ELSE 0 END))
-                as total
-            ,sum((CASE WHEN order_type = 'BUY' THEN quantity ELSE 0 END)
-                -
-                (CASE WHEN order_type = 'SELL' THEN quantity ELSE 0 END))
-                as quantity
-        FROM orders
-        WHERE portfolio_id=$1
-        GROUP BY symbol, portfolio_id
-        ORDER BY symbol;`, [portfolioId]
+        `SELECT 
+         symbol,
+         sum(CASE WHEN order_type = 'BUY' THEN quantity*unit_price ELSE 0 END) AS BuyAmount,
+         sum(CASE WHEN order_type = 'SELL' THEN quantity*unit_price ELSE 0 END) AS SellAmount,
+         sum((case when order_type = 'BUY' then 1 else -1 end) * quantity * unit_price) as total,
+         sum((case when order_type = 'BUY' then 1 else -1 end) * quantity) as quantity
+         FROM orders
+         WHERE portfolio_id=$1
+         GROUP BY symbol, portfolio_id
+         ORDER BY symbol;`, [portfolioId]
     ).then(result => {
         return res.json({"rows": result.rows});
     });
 })
 
-app.get("/search", (req, res) => {
+app.get("/search", asyncHandler(async (req, res) => {
     if (!req.query.ticker) {
         res.render("search_bootstrap");
     } else {
         let ticker = req.query.ticker;
-        getQuotes(ticker).then((response) => {
-            if (response.status === 200) {
-                var data = response.data;
-                data = data[ticker.toUpperCase()]['quote'];
-                res.render('search_bootstrap', data);
-            } else {
-                console.log("Message: " + response.data);
-                res.status(response.status);
-                res.render('search_bootstrap', {error: response.data});
-            }
-        }).catch((error) => {
-            console.log(error);
-            res.sendStatus(500);
-        });
+        let iexResponse = await iex.getQuotes(ticker);
+        if (200 <= iexResponse.status && iexResponse.status <= 299) {
+            res.render("search_bootstrap", iexResponse.data[ticker.toUpperCase()]['quote']);
+        }  else {
+            console.log(iexResponse.status);
+            res.status(iexResponse.status)
+            res.render('search_bootstrap', {error: iexResponse.data});
+        }
     }
-});
+}));
 
 // Post Quote - 1 ticker
 app.post("/quote", (req, res) => {
     if (req.body.symbol) {
         let ticker = req.body.symbol;
-        getQuote(ticker).then((response) => {
+        iex.getQuote(ticker).then((response) => {
             if (response.status === 200) {
                 var data = response.data;
                 return res.json(data);
@@ -300,24 +305,16 @@ app.post("/quote", (req, res) => {
 });
 
 // Get quote - Multiple tickers
-app.get("/quote", (req, res) => {
-    let ticker = req.query.symbol;
-    getQuotes(ticker).then((response) => {
-        if (response.status === 200) {
-            var data = response.data;
-            res.json(data);
-        } else {
-            console.log("Message: " + response.data.error);
-        }
-    }).catch((error) => {
-        console.log(error);
-    });
-})
+app.get("/quote", asyncHandler(async (req, res) => {
+    let tickers= req.query.symbol;
+    let data = await iex.getQuotes(tickers)
+    res.json(data);
+}))
 
 // Get Price - 1 ticker
 app.get("/price", (req, res) => {
     let ticker = req.query.symbol;
-    getQuote(ticker).then((response) => {
+    iex.getQuote(ticker).then((response) => {
         if (response.status === 200) {
             console.log(data);
             var data = response.data;
@@ -337,12 +334,12 @@ app.get("/placeOrder", asyncHandler(async (req, res) => {
     let portfolioId = req.query.portfolioId;
     let price = req.query.price;
 
-    let cashResponse = await getCash(portfolioId);
+    let cashResponse = await db.getCash(portfolioId);
     let currentCash = cashResponse[0].cash;
     totalValue = quantity*price;
     let run = false;
 
-    let quantityResponse = await getQuantity(portfolioId, ticker)
+    let quantityResponse = await db.getQuantity(portfolioId, ticker)
     let totalQuantity = quantityResponse[0].quantity
     console.log(totalQuantity);
 
@@ -350,10 +347,10 @@ app.get("/placeOrder", asyncHandler(async (req, res) => {
     console.log(`${quantity} < ${totalQuantity}`);
 
     if ((orderType === 'BUY') &&  (currentCash > totalValue)) {
-        buyOrderCash(totalValue, portfolioId);
+        db.buyOrderCash(totalValue, portfolioId);
         run = true;
     } else if ((orderType === 'SELL') && (quantity < totalQuantity)) {
-        sellOrderCash(totalValue, portfolioId);
+        db.sellOrderCash(totalValue, portfolioId);
         run = true
     } else if ((orderType === 'BUY') && (currentCash < totalValue)) {
         console.log("Not enough cash");

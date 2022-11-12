@@ -155,6 +155,7 @@ fetch(url).then((response) => {
                     
                     // Sum up current total value
                     currentTotal += body[key].quote.latestPrice * row.children[2].innerText
+                    console.log(row.children[3])
                     gav = row.children[3].innerText.substring(1);
                     // Average % increase/decrease for each stock --> current price/average unit price
                     stockYield = row.children[8]
