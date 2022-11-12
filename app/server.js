@@ -308,7 +308,6 @@ app.post("/quote", (req, res) => {
 app.get("/quote", asyncHandler(async (req, res) => {
     let tickers= req.query.symbol;
     let response = await iex.getQuotes(tickers)
-    console.log(response.data);
     res.json(response.data);
 }))
 
