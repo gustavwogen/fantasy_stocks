@@ -59,8 +59,10 @@ block content
   script(src="/scripts/search.js")   
   script.
     function calculateTotalBuy() {
-      let quantity = document.getElementById('quantityBuy').value
-      document.getElementById('totalPriceBuy').textContent = `Total: ${(Math.round(quantity * #{latestPrice} * 100) / 100).toFixed(2)}`;
+      let quantity = document.getElementById('quantityBuy')
+      if (quantity) {
+        document.getElementById('totalPriceBuy').textContent = `Total: ${(Math.round(quantity.value * #{latestPrice} * 100) / 100).toFixed(2)}`;
+      }
     }
 
     function calculateTotalSell() {
