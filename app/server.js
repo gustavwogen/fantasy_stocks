@@ -307,8 +307,9 @@ app.post("/quote", (req, res) => {
 // Get quote - Multiple tickers
 app.get("/quote", asyncHandler(async (req, res) => {
     let tickers= req.query.symbol;
-    let data = await iex.getQuotes(tickers)
-    res.json(data.data);
+    let response = await iex.getQuotes(tickers)
+    console.log(response.data);
+    res.json(response.data);
 }))
 
 // Get Price - 1 ticker
