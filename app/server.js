@@ -308,7 +308,7 @@ app.post("/quote", (req, res) => {
 app.get("/quote", asyncHandler(async (req, res) => {
     let tickers= req.query.symbol;
     let data = await iex.getQuotes(tickers)
-    res.json(data);
+    res.json(data.data);
 }))
 
 // Get Price - 1 ticker
