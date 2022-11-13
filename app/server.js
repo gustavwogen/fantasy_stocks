@@ -252,11 +252,11 @@ app.post("/create/portfolio", (req, res) => {
         .hash(plaintextPassword, saltRounds)
         .then((hashedPassword) => {
             pool.query(
-                "INSERT INTO portfolios (user_id, name, cash, created_at) VALUES ($1, $2, $3, $4)",
-                [userID, name, cash, ]
+                "INSERT INTO portfolios (user_id, name, cash) VALUES ($1, $2, $3, $4)",
+                [userID, name, cash]
             )
                 .then(() => {
-                    // account created
+                    // portfolio created
                     console.log(name, "portfolio created");
                     res.status(200).send();
                 })
