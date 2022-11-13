@@ -40,7 +40,7 @@
 			if (costInput.value <= 0) {
 				result.textContent = "must have a value greater than 0"
 				result.classList.add("error");
-			} else if (nameInput.value.length <= 50) {
+			} else if (nameInput.value.length > 50) {
 				result.textContent = "Invalid Portfolio Name. Must be less than 50 characters"
 				result.classList.add("error");
 			} else {
