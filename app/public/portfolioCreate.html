@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Create account</title>
+		<style>
+		.error {
+			color: red;
+		}
+		</style>
+	</head>
+	<body>
+
+		<h1>My cool site</h1>
+
+		<h2>Create a new portfolio</h2>
+
+		<table>
+			<tr>
+				<td><label name="name" for="name">Name:</label></td>
+				<td><input type="text" id="name"></td>
+			</tr>
+			<tr>
+				<td><label name="cost" for="cost">Cost:</label></td>
+				<td><input type="number" step="any" id="cost"></td>
+			</tr>
+		</table>
+
+		<button id="create">Create portfolio</button>
+
+		<div id="result">&nbsp;</div>
+
+		<p>Already have an account? Log in <a href="/user/login">here</a>.</p>
+
+		<script>
+		let nameInput = document.getElementById("name");
+		let costInput = document.getElementById("cost");
+
+		document.getElementById("create").addEventListener("click", () => {
+			if (costInput.value <= 0) {
+				result.textContent = "must have a value greater than 0"
+				result.classList.add("error");
+			} else if (nameInput.value.length <= 50) {
+				result.textContent = "Invalid Portfolio Name. Must be less than 50 characters"
+				result.classList.add("error");
+			} else {
+				fetch("/create/portfolio", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json"
+					},
+					body: JSON.stringify({
+						name: nameInput.value,
+						cost: costInput.value,
+						user_id: 
+					})
+				}).then((response) => {
+					if (response.status === 200) {
+						result.textContent = "Account was created";
+						result.classList.remove("error");
+					} else {
+						response.text().then((text) => {
+							result.textContent = text;
+						})
+						result.classList.add("error");
+					}
+				});
+			}
+		});
+		</script>
+
+	</body>
+</html>
