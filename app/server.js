@@ -244,35 +244,31 @@ app.get("/quote", (req, res) => {
 })
 
 app.post("/create/portfolio", (req, res) => {
-    let userID = req.user.user_id;
+    let userID = req.body.user_id;
     let name = req.body.name;
     let cash = req.body.cash;
 
-    bcrypt
-        .hash(plaintextPassword, saltRounds)
-        .then((hashedPassword) => {
-            pool.query(
-                "INSERT INTO portfolios (user_id, name, cash) VALUES ($1, $2, $3)",
-                [userID, name, cash]
-            )
-                .then(() => {
-                    // portfolio created
-                    console.log(name, "portfolio created");
-                    res.status(200).send();
-                })
-                .catch((error) => {
-                    // insert failed
-                    if (error.detail === `Key (username)=(${username}) already exists.`) {
-                        return res.status(401).send("Username is already taken.");
-                    }
-                    return res.status(500).send("Account creation failed");
-                });
+    pool.query(
+        "INSERT INTO portfolios (user_id, name, cash) VALUES ($1, $2, $3)",
+        [userID, name, cash]
+    )
+        .then(() => {
+            // portfolio created
+            console.log(name, "portfolio created");
+            res.status(200).send();
         })
         .catch((error) => {
-            // bcrypt crashed
-            console.log(error);
-            res.status(500).send();
+            // insert failed
+            if (error.detail === `Key (username)=(${username}) already exists.`) {
+                return res.status(401).send("Username is already taken.");
+            }
+            return res.status(500).send("Account creation failed");
         });
+})
+.catch((error) => {
+    // bcrypt crashed
+    console.log(error);
+    res.status(500).send();
 });
 
 app.listen(port, hostname, () => {
