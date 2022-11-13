@@ -151,6 +151,10 @@ app.get('/user/login', function (req, res) {
     res.sendFile('public/login.html' , { root : __dirname});
 });
 
+app.get('/create/portfolio', function (req, res) {
+    res.sendFile('public/portfolioCreate.html' , { root : __dirname});
+});
+
 app.get("/user/logout", (req,res) => {
     res.cookie('AuthToken', 'None')
     res.redirect('/user/login');
