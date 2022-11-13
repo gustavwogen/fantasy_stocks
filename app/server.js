@@ -116,7 +116,10 @@ app.post("/signin", (req, res) => {
                     if (passwordMatched) {
                         const authToken = generateAuthToken();
                         // Store authentication token
-                        authTokens[authToken] = username;
+                        authTokens[authToken] = {
+                            username: username,
+                            user_id: user_id
+                        };
                         // Setting the auth token in cookies
                         res.cookie('AuthToken', authToken);
                         pool.query("SELECT user_id FROM users WHERE username = $1", [
@@ -248,10 +251,10 @@ app.get("/quote", (req, res) => {
 })
 
 app.post("/create/portfolio", (req, res) => {
-    let userID = req.user_id;
+    let userID = req.user.user_id;
     let name = req.body.name;
     let cash = req.body.cash;
-
+    console.log(req.user.user_id);
     pool.query(
         "INSERT INTO portfolios (user_id, name, cash) VALUES ($1, $2, $3)",
         [userID, name, cash]
