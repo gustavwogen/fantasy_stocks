@@ -248,7 +248,7 @@ app.get("/quote", (req, res) => {
 })
 
 app.post("/create/portfolio", (req, res) => {
-    let userID = req.user.user_id;
+    let userID = req.user_id;
     let name = req.body.name;
     let cash = req.body.cash;
 
