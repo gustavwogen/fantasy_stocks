@@ -259,16 +259,9 @@ app.post("/create/portfolio", (req, res) => {
         })
         .catch((error) => {
             // insert failed
-            if (error.detail === `Key (username)=(${username}) already exists.`) {
-                return res.status(401).send("Username is already taken.");
-            }
-            return res.status(500).send("Account creation failed");
+            console.log(error);
+            return res.status(500).send("Portfolio creation failed");
         });
-})
-.catch((error) => {
-    // bcrypt crashed
-    console.log(error);
-    res.status(500).send();
 });
 
 app.listen(port, hostname, () => {
