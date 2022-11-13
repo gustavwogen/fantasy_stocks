@@ -116,10 +116,7 @@ app.post("/signin", (req, res) => {
                     if (passwordMatched) {
                         const authToken = generateAuthToken();
                         // Store authentication token
-                        authTokens[authToken] = {
-                            username: username,
-                            user_id: user_id
-                        };
+                        authTokens[authToken] = username;
                         // Setting the auth token in cookies
                         res.cookie('AuthToken', authToken);
                         pool.query("SELECT user_id FROM users WHERE username = $1", [
