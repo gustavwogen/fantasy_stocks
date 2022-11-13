@@ -244,7 +244,7 @@ app.get("/quote", (req, res) => {
 })
 
 app.post("/create/portfolio", (req, res) => {
-    let userID = req.body.user_id;
+    let userID = req.user.user_id;
     let name = req.body.name;
     let cash = req.body.cash;
 
@@ -252,7 +252,7 @@ app.post("/create/portfolio", (req, res) => {
         .hash(plaintextPassword, saltRounds)
         .then((hashedPassword) => {
             pool.query(
-                "INSERT INTO portfolios (user_id, name, cash) VALUES ($1, $2, $3, $4)",
+                "INSERT INTO portfolios (user_id, name, cash) VALUES ($1, $2, $3)",
                 [userID, name, cash]
             )
                 .then(() => {

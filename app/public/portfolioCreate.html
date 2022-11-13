@@ -52,11 +52,11 @@
 					body: JSON.stringify({
 						name: nameInput.value,
 						cost: costInput.value,
-						user_id: 
+						user_id: costInput.value
 					})
 				}).then((response) => {
 					if (response.status === 200) {
-						result.textContent = "Account was created";
+						result.textContent = "Portfolio was created";
 						result.classList.remove("error");
 					} else {
 						response.text().then((text) => {
