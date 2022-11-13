@@ -39,3 +39,24 @@ CREATE TABLE orders (
         REFERENCES portfolios(portfolio_id)
         ON DELETE SET NULL
 );
+
+app.post("/create/portfolio", (req, res) => {
+    let userID = req.user.user_id;
+    let name = req.body.name;
+    let cash = req.body.cash;
+    console.log(req.user.user_id);
+    pool.query(
+        "INSERT INTO portfolios (user_id, name, cash) VALUES ($1, $2, $3)",
+        [userID, name, cash]
+    )
+        .then(() => {
+            // portfolio created
+            console.log(name, "portfolio created");
+            res.status(200).send();
+        })
+        .catch((error) => {
+            // insert failed
+            console.log(error);
+            return res.status(500).send("Portfolio creation failed");
+        });
+});
