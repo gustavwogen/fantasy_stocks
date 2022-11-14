@@ -1,5 +1,4 @@
 
-
 const getPortfolios = async (pool, userId)=> {
     try {
         const result = await pool.query('SELECT * from portfolios where user_id = $1', [userId])

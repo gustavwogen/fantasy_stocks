@@ -14,7 +14,6 @@ require('express-async-errors')
 let iex = require('./utils/iex');
 let db = require('./utils/postgres');
 
-// Any way to get around this?
 let env = require("../env.json");
 
 let hostname = "localhost";
@@ -82,8 +81,8 @@ const generateAuthToken = () => {
 const authTokens = {};
 
 app.get('/bootstrap', asyncHandler(async (req, res) => {
-    var portfolios = await db.getPortfolios(1);
-    var holdings = await db.getPortfolioHoldings(1);
+    var portfolios = await db.getPortfolios(pool, 1);
+    var holdings = await db.getPortfolioHoldings(pool, 1);
     console.log(holdings);
     res.render('base_index', {
         test: "fantasyStocks",
@@ -93,9 +92,9 @@ app.get('/bootstrap', asyncHandler(async (req, res) => {
 
 app.get("/portfolio/:portfolioId", asyncHandler(async (req, res) => {
     let portfolioId = req.params.portfolioId;
-    var portfolioCash = await db.getCash(portfolioId);
+    var portfolioCash = await db.getCash(pool, portfolioId);
     console.log("portfolio cash");
-    var holdings = await db.getPortfolioHoldings(portfolioId);
+    var holdings = await db.getPortfolioHoldings(pool, portfolioId);
     console.log("holdings");
     let tickerList = holdings.map(row => row.symbol);
     var portfolioStockValue = holdings.reduce((a, row) => a + parseFloat(row.total), 0);
@@ -338,22 +337,22 @@ app.get("/placeOrder", asyncHandler(async (req, res) => {
     let portfolioId = Number(req.query.portfolioId);
     let price = Number(req.query.price);
 
-    let cashResponse = await db.getCash(portfolioId);
+    let cashResponse = await db.getCash(pool, portfolioId);
     let currentCash = Number(cashResponse[0].cash);
     totalValue = quantity*price;
     let run = false;
 
-    let quantityResponse = await db.getQuantity(portfolioId, ticker);
+    let quantityResponse = await db.getQuantity(pool, portfolioId, ticker);
     let totalQuantity = Number(quantityResponse[0].quantity);
 
     console.log(`${totalValue} < ${currentCash}`);
     console.log(`${quantity} < ${totalQuantity}`);
 
     if ((orderType === 'BUY') && (currentCash > totalValue)) {
-        db.buyOrderCash(totalValue, portfolioId);
+        db.buyOrderCash(pool, totalValue, portfolioId);
         run = true;
     } else if ((orderType === 'SELL') && (quantity < totalQuantity)) {
-        db.sellOrderCash(totalValue, portfolioId);
+        db.sellOrderCash(pool, totalValue, portfolioId);
         run = true
     } else if ((orderType === 'BUY') && (currentCash < totalValue)) {
         console.log("Not enough cash");
