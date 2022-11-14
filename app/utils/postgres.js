@@ -1,9 +1,6 @@
-let { Pool } = require("pg");
-let env = require("../../env.json");
 
-let pool = new Pool(env);
 
-const getPortfolios = async (userId)=> {
+const getPortfolios = async (pool, userId)=> {
     try {
         const result = await pool.query('SELECT * from portfolios where user_id = $1', [userId])
         return result.rows;
@@ -12,7 +9,7 @@ const getPortfolios = async (userId)=> {
     }
 }
 
-const getCash = async (portfolioId)=> {
+const getCash = async (pool, portfolioId)=> {
     try {
         const result = await pool.query(`SELECT portfolio_id, cash from portfolios where portfolio_id=$1`, [portfolioId])
         return result.rows;
@@ -21,7 +18,7 @@ const getCash = async (portfolioId)=> {
     }
 }
 
-const getQuantity = async (portfolioId, ticker)=> {
+const getQuantity = async (pool, portfolioId, ticker)=> {
     try {
         const result = await pool.query(`
         SELECT 
@@ -35,7 +32,7 @@ const getQuantity = async (portfolioId, ticker)=> {
     }
 }
 
-const getPortfolioHoldings = async (portfolioId) => {
+const getPortfolioHoldings = async (pool, portfolioId) => {
     try {
         const result = await pool.query(
             `SELECT 
@@ -55,7 +52,7 @@ const getPortfolioHoldings = async (portfolioId) => {
     }
 }
 
-const buyOrderCash = async (totalValue, portfolioId)=> {
+const buyOrderCash = async (pool, totalValue, portfolioId)=> {
     try {
         const result = await pool.query(`UPDATE portfolios set cash=cash-$1 where portfolio_id=$2;`,[totalValue, portfolioId])
         return result.rows;
@@ -64,7 +61,7 @@ const buyOrderCash = async (totalValue, portfolioId)=> {
     }
 }
 
-const sellOrderCash = async (totalValue, portfolioId)=> {
+const sellOrderCash = async (pool, totalValue, portfolioId)=> {
     try {
         const result = await pool.query(`UPDATE portfolios set cash=cash+$1 where portfolio_id=$2;`,[totalValue, portfolioId])
         return result.rows;
