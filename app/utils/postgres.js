@@ -32,31 +32,11 @@ const getQuantity = async (portfolioId, ticker)=> {
     try {
         const client = await pool.connect();
         const result = await client.query(`
-        SELECT quantity FROM
-            (SELECT symbol, portfolio_id
-                ,sum(CASE 
-                        WHEN order_type = 'BUY'
-                            THEN quantity*unit_price
-                        ELSE 0
-                        END) AS BuyAmount
-                ,sum(CASE 
-                        WHEN order_type = 'SELL'
-                            THEN quantity*unit_price
-                        ELSE 0
-                        END) AS SellAmount
-                ,sum((CASE WHEN order_type = 'BUY' THEN quantity*unit_price ELSE 0 END)
-                    -
-                    (CASE WHEN order_type = 'SELL' THEN quantity*unit_price ELSE 0 END))
-                    as total
-                ,sum((CASE WHEN order_type = 'BUY' THEN quantity ELSE 0 END)
-                    -
-                    (CASE WHEN order_type = 'SELL' THEN quantity ELSE 0 END))
-                    as quantity
-            FROM orders
-            WHERE portfolio_id=$1
-            GROUP BY symbol, portfolio_id
-            ORDER BY symbol) AS foo 
-            WHERE symbol=$2;`, [portfolioId, ticker])
+        SELECT 
+        sum((case when order_type = 'BUY' then 1 else -1 end) * quantity) as quantity
+        FROM orders
+        WHERE portfolio_id=$1 and symbol=$2
+        GROUP BY symbol, portfolio_id;`, [portfolioId, ticker])
         await client.end()
         return result.rows;
     } catch (error) {
