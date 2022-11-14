@@ -41,18 +41,27 @@ UPDATE portfolios SET cash = cash - (
     from orders
     where portfolio_id=1
 )
-where user_id = 1;
+where portfolio_id=1;
 
 -- Portfolio "2nd portfolio"
 INSERT INTO orders 
 (portfolio_id, order_type, symbol, quantity, unit_price)
 VALUES 
-(2, 'BUY', 'MSFT', 4, 350.4),
-(2, 'BUY', 'AMZN', 4, 400.4),
+(2, 'BUY', 'MSFT', 40, 350.4),
+(2, 'BUY', 'AMZN', 40, 400.4),
 (2, 'BUY', 'SQ', 4, 150.4),
 (1, 'BUY', 'AAPL', 3, 157.23),
 (2, 'SELL', 'AMZN', 2, 450.4)
 ;
+
+-- Update portfolio 2 cash
+UPDATE portfolios SET cash = cash - (
+    select
+    sum((case when order_type = 'BUY' then 1 else -1 end) * quantity * unit_price) as total
+    from orders
+    where portfolio_id=2
+)
+where portfolio_id=2;
 
 
 INSERT INTO games

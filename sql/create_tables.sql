@@ -19,6 +19,7 @@ CREATE TABLE users (
 CREATE TABLE portfolios (
     portfolio_id SERIAL PRIMARY KEY,
     user_id INT NOT NULL,
+    game_id INT DEFAULT NULL,
     name VARCHAR(50) NOT NULL,
     cash NUMERIC DEFAULT 100000 CHECK (cash >= 0),
     created_at timestamp without time zone default (now() at time zone 'utc'),
