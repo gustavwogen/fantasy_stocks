@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "setup_sql": "bash create_db.sh $POSTGRES_USER",
-    "devStart": "nodemon app/server.js",
-    "start": "bash setup.sh"
+    "setup_sql": "bash create_db.sh",
+    "devStart": "cd app && nodemon server.js",
+    "start": "cd app && node server.js"
   },
   "repository": {
     "type": "git",
@@ -22,10 +22,15 @@
   "dependencies": {
     "axios": "^1.1.3",
     "bcrypt": "^5.1.0",
+    "body-parser": "^1.20.1",
     "cookie-parser": "^1.4.6",
     "express": "^4.18.2",
+    "express-async-errors": "^3.1.1",
+    "express-async-handler": "^1.2.0",
     "express-session": "^1.17.3",
-    "pg": "^8.8.0"
+    "multer": "^1.4.5-lts.1",
+    "pg": "^8.8.0",
+    "pug": "^3.0.2"
   },
   "devDependencies": {
     "nodemon": "^2.0.20"

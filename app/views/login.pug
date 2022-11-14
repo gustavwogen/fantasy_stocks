@@ -1,0 +1,30 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(http-equiv="X-UA-Compatible", content="IE=edge")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    //- Bootstrap CSS
+    link(rel="stylesheet", href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous")
+    link(rel="stylesheet", href="/css/signin.css")
+    title Fantasy Stocks - Sign in
+  body 
+    .text-center
+      form(class="form-signin", action="/user/login", method="POST")
+        h1(class=["h3", "mb-3", "font-weight-normal"]) Please sign in
+        label(for="inputEmail", class="sr-only") Username
+        input#username(type="text", name="username", class="form-control", placeholder="Username" required autofocus)
+        label(for="inputPassword", class="sr-only") Password
+        input#password(type="password", name="password", class="form-control", placeholder="Password" required)
+        br
+        button#login(type="submit", class="btn btn-lg btn-primary btn-block") Sign in
+
+      div#result(class="text-danger") #{error}
+
+      p Need an account? Create an account #[a(href="/user/create") here]
+      
+    //- Optional JavaScript
+    //- jQuery first, then Popper.js, then Bootstrap JS
+    script(src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous")
+    script(src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous")
+    script(src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous")
