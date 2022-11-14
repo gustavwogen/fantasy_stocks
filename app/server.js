@@ -331,6 +331,61 @@ app.get("/price", (req, res) => {
     });
 })
 
+app.get("/placeOrder", asyncHandler(async (req, res) => {
+    let ticker = req.query.symbol.toUpperCase();
+    let orderType = req.query.orderType.toUpperCase();
+    let quantity = req.query.quantity;
+    let portfolioId = req.query.portfolioId;
+    let price = req.query.price;
+
+    let cashResponse = await db.getCash(portfolioId);
+    let currentCash = cashResponse[0].cash;
+    totalValue = quantity*price;
+    let run = false;
+
+    let quantityResponse = await db.getQuantity(portfolioId, ticker)
+    let totalQuantity = quantityResponse[0].quantity
+    console.log(totalQuantity);
+
+    console.log(`${totalValue} < ${currentCash}`);
+    console.log(`${quantity} < ${totalQuantity}`);
+
+    if ((orderType === 'BUY') &&  (currentCash > totalValue)) {
+        db.buyOrderCash(totalValue, portfolioId);
+        run = true;
+    } else if ((orderType === 'SELL') && (quantity < totalQuantity)) {
+        db.sellOrderCash(totalValue, portfolioId);
+        run = true
+    } else if ((orderType === 'BUY') && (currentCash < totalValue)) {
+        console.log("Not enough cash");
+        return res.json("Not enough cash");
+    } else if ((orderType === 'SELL') && (quantity > totalQuantity)) {
+        console.log("Do not own required quantity");
+        return res.json("Do not own required quantity");
+    }
+
+    if (run) {
+        console.log(ticker, orderType, quantity, portfolioId, price);
+        pool.query(`
+            INSERT INTO orders (portfolio_id, order_type, symbol, quantity, unit_price) 
+            VALUES ($1, $2, $3, $4, $5);`,
+            [portfolioId, orderType, ticker, quantity, price]
+        ).then(result => {
+            return res.json(result);
+        });
+    }
+}))
+
+app.get("/cash", (req, res) => {
+    let portfolioId = req.query.portfolioId;
+    pool.query(`
+        SELECT portfolio_id, cash from portfolios where portfolio_id=$1`,
+        [portfolioId]
+    ).then(result => {
+        return res.json(result);
+    });
+})
+
 app.get('/create/portfolio', function (req, res) {
     res.sendFile('public/portfolioCreate.html' , { root : __dirname});
 });
