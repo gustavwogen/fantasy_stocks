@@ -57,6 +57,48 @@ app.use((req, res, next) => {
     // Inject the user to the request
     req.user = authTokens[authToken];
     res.locals.user = req.user;
+    // for testing
+    req.user = {
+        username: 'admin',
+        user_id: 1,
+        portfolios: {
+          '1': {
+            portfolio_id: 1,
+            user_id: 1,
+            name: 'to the moon',
+            cash: '63219.29',
+            created_at: "2022-11-13T04:19:18.119Z"
+          },
+          '2': {
+            portfolio_id: 2,
+            user_id: 1,
+            name: '2nd portfolio',
+            cash: '100000',
+            created_at: "2022-11-13T04:19:18.119Z"
+          }
+        }
+      }
+    // for testing
+    res.locals.user = {
+        username: 'admin',
+        user_id: 1,
+        portfolios: {
+          '1': {
+            portfolio_id: 1,
+            user_id: 1,
+            name: 'to the moon',
+            cash: '63219.29',
+            created_at: "2022-11-13T04:19:18.119Z"
+          },
+          '2': {
+            portfolio_id: 2,
+            user_id: 1,
+            name: '2nd portfolio',
+            cash: '100000',
+            created_at: "2022-11-13T04:19:18.119Z"
+          }
+        }
+      }
     next();
 });
 
@@ -93,13 +135,22 @@ app.get('/bootstrap', asyncHandler(async (req, res) => {
 app.get("/portfolio/:portfolioId", asyncHandler(async (req, res) => {
     let portfolioId = req.params.portfolioId;
     var portfolioCash = await db.getCash(pool, portfolioId);
-    console.log("portfolio cash");
+    console.log("portfolio cash", portfolioCash);
+
     var holdings = await db.getPortfolioHoldings(pool, portfolioId);
-    console.log("holdings");
     let tickerList = holdings.map(row => row.symbol);
-    var portfolioStockValue = holdings.reduce((a, row) => a + parseFloat(row.total), 0);
+
+    // calculate current value for each stock based on current price and quantity
+    for (let row of holdings) {
+        let price = await iex.getPrice(row.symbol);
+        console.log(row.symbol, price.data);
+        row.current_value = parseFloat(price.data) * parseFloat(row.quantity);
+    }
+    
+    // get the total value of all the stocks in the portfolio
+    var portfolioStockValue = holdings.reduce((a, row) => a + parseFloat(row.current_value), 0);
+
     var quotes = await iex.getQuotes(tickerList.join());
-    console.log("iex data");
     quotes = quotes.data;
     holdings.forEach((row) => {
         quotes[row.symbol]['portfolio'] = row
@@ -107,8 +158,7 @@ app.get("/portfolio/:portfolioId", asyncHandler(async (req, res) => {
     res.render('portfolio', {
         holdings: Object.values(quotes),
         cash: portfolioCash[0].cash,
-        portfolioStockValue: portfolioStockValue,
-        totalPortfolioValue: portfolioStockValue + parseFloat(portfolioCash[0].cash)
+        totalPortfolioValue: parseFloat(portfolioCash[0].cash) + parseFloat(portfolioStockValue)
     });
 }));
 
@@ -162,70 +212,47 @@ app.get('/user/login', (req, res) => {
     res.render('login');
 });
 
-app.post("/user/login", (req, res) => {
-    console.log(req.body);
+app.post("/user/login", asyncHandler(async (req, res) => {
     let username = req.body.username;
     let plaintextPassword = req.body.password;
-    pool.query("SELECT password FROM users WHERE username = $1", [
-        username,
-    ])
-        .then((result) => {
-            if (result.rows.length === 0) {
-                // username doesn't exist
-                res.status(401);
-                return res.render('login', {
-                    error: "Incorrect username or password"
-                });
-            }
-            let hashedPassword = result.rows[0].password;
-            bcrypt
-                .compare(plaintextPassword, hashedPassword)
-                .then((passwordMatched) => {
-                    if (passwordMatched) {
-                        console.log('password mathed');
-                        pool.query("SELECT user_id FROM users WHERE username = $1", [
-                            username,
-                        ]).then((result) => {
-                            console.log(result.rows);
-                            if (result.rows.length > 0) {
-                                var user_id = result.rows[0].user_id;
-                                const authToken = generateAuthToken();
-                                // Store authentication token
-                                authTokens[authToken] = {
-                                    username: username,
-                                    user_id: user_id
-                                };
-                                // Setting the auth token in cookies
-                                res.cookie('AuthToken', authToken);
-                                return res.redirect("/");
-                            }
-                        })
-                    } else {
-                        console.log('not matched password');
-                        res.status(401);
-                        return res.render('login', {
-                            error: "Incorrect username or password"
-                        });
-                    }
-                })
-                .catch((error) => {
-                    // bcrypt crashed
-                    console.log('bcrypt error: ' + error.message)
-                    console.log(error);
-                    res.status(500).send();
-                });
+    const result = await pool.query("SELECT password FROM users WHERE username = $1", [username])
+    if (result.rows.length === 0) {
+        res.status(401);
+        res.render('login', {
+            error: "Incorrect username or password"
         })
-        .catch((error) => {
-            // select crashed
-            console.log('server error');
-            console.log(error);
-            res.status(500).send();
-        });
-});
-
-app.get('/user/login', function (req, res) {
-    res.sendFile('public/login.html' , { root : __dirname});
-});
+    } else {
+        let hashedPassword = result.rows[0].password;
+        let passwordMatched = await bcrypt.compare(plaintextPassword, hashedPassword);
+        if (passwordMatched) {
+            console.log('password matched');
+            let user_query = await pool.query("SELECT user_id FROM users WHERE username = $1", [username])
+            console.log(user_query);
+            if (user_query.rows.length > 0) {
+                var user_id = user_query.rows[0].user_id;
+                const authToken = generateAuthToken();
+                let portfolios = await db.getPortfolios(pool, user_id);
+                portfolios = portfolios.reduce((obj, item) => (obj[item.portfolio_id] = item, obj) ,{})
+                // Store authentication token
+                authTokens[authToken] = {
+                    username: username,
+                    user_id: user_id,
+                    portfolios: portfolios
+                };
+                console.log(authTokens[authToken]);
+                // Setting the auth token in cookies
+                res.cookie('AuthToken', authToken);
+                return res.redirect("/");
+            }
+        } else {
+            console.log('not matched password');
+            res.status(401);
+            return res.render('login', {
+                error: "Incorrect username or password"
+            });
+        }
+    }
+}));
 
 app.get("/user/logout", (req,res) => {
     res.cookie('AuthToken', 'None')
@@ -233,6 +260,7 @@ app.get("/user/logout", (req,res) => {
 });
 
 function requireAuth(req, res, next) {
+    console.log('requireAuth');
     if (req.user) {
         next();
     } else {
@@ -241,18 +269,16 @@ function requireAuth(req, res, next) {
     }
 };
 
-// app.use(requireAuth); // user will need to be logged in to access any route under this line 
+app.use(requireAuth); // user will need to be logged in to access any route under this line 
 
 
 app.get("/", (req, res) => {
-    let user = req.user; 
+    let user = req.user;
     // we can access the username of the currently logged in user this way
     // lets us query data from the database
-    // res.render('home', {
-    //     user_id: user.user_id,
-    //     username: user.username,
-    // })
-    res.sendFile('public/index.html', {root: __dirname})
+    console.log(res.locals.user);
+    res.render('index');
+    // res.sendFile('public/index.html', {root: __dirname})
 })
 
 // Show portfolio 

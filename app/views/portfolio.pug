@@ -6,7 +6,8 @@ block content
 
   if holdings.length > 0
     div(class="container")
-      h2= `Total value: ${totalPortfolioValue}`
+      h2#total-value= `Total value: ${totalPortfolioValue}`
+      h4#cash= `Available cash: ${cash}`
       br
       div(class="table-responsive")
         table(class="table table-bordered table-hover")
@@ -22,10 +23,8 @@ block content
               th(scope="col") YTD Change 
               th(scope="col") Current Value
               th(scope="col") Yield
-          tbody 
-            - var currentTotal = 0
+          tbody
             each row in holdings
-              - currentTotal += row.quote.latestPrice * row.portfolio.quantity
               tr(id=`${row.quote.symbol}`)
                 td= row.quote.companyName
                 td= row.quote.symbol
@@ -40,4 +39,16 @@ block content
                 td(class=stockYield >= 0 ? "text-success" : "text-danger")= `${Number.parseFloat(stockYield * 100).toFixed(2)}%`
   else 
     p bye
+  
+  script.
+    let dollarUS = Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+    });
+
+    let totalValue = document.getElementById('total-value')
+    totalValue.textContent = `Total value: ${dollarUS.format(parseFloat(totalValue.textContent.slice(13)))}`;
     
+    let cash = document.getElementById('cash');
+    console.log(cash.textContent.slice(15));
+    cash.textContent = `Available cash: ${dollarUS.format(parseFloat(cash.textContent.slice(15)))}`;

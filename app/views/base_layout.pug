@@ -22,22 +22,22 @@ html(lang="en")
               span(class="sr-only") (current)
           li(class="nav-item")
             a(class="nav-link" href="#") Link
-          if portfolios
+          if user.portfolios
             li(class="nav-item dropdown")
               a(class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false") Portfolios
               div(class="dropdown-menu" aria-labelledby="navbarDropdown")
-                each portfolio in portfolios
-                  a(class="dropdown-item" href=`/portfolio/${portfolio.portfolio_id}`)= portfolio.name
+                each portfolio, portfolio_id in user.portfolios
+                  a(class="dropdown-item" href=`/portfolio/${portfolio_id}`)= portfolio.name
                 div(class="dropdown-divider")
                 a(class="dropdown-item" href="#") Create new portfolio
-
-          li(class="nav-item dropdown")
-            a(class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false") Games
-            div(class="dropdown-menu" aria-labelledby="navbarDropdown")
-              a(class="dropdown-item" href="#") Game 1
-              a(class="dropdown-item" href="#") Game 2
-              div(class="dropdown-divider")
-              a(class="dropdown-item" href="#") Create new game
+          if user.games
+            li(class="nav-item dropdown")
+              a(class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false") Games
+              div(class="dropdown-menu" aria-labelledby="navbarDropdown")
+                each game, game_id in user.games
+                  a(class="dropdown-item" href=`/game/${game_id}`)= game.name
+                div(class="dropdown-divider")
+                a(class="dropdown-item" href="#") Create new game
           li(class="nav-item")
             a(class="nav-link" href="/user/logout") Sign out
           li(class="nav-item")
