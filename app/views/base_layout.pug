@@ -29,7 +29,7 @@ html(lang="en")
                 each portfolio, portfolio_id in user.portfolios
                   a(class="dropdown-item" href=`/portfolio/${portfolio_id}`)= portfolio.name
                 div(class="dropdown-divider")
-                a(class="dropdown-item" href="#") Create new portfolio
+                a(class="dropdown-item" href="/create/portfolio") Create new portfolio
           if user.games
             li(class="nav-item dropdown")
               a(class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false") Games
