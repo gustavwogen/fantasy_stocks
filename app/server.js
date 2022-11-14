@@ -330,23 +330,22 @@ app.get("/price", (req, res) => {
 app.get("/placeOrder", asyncHandler(async (req, res) => {
     let ticker = req.query.symbol.toUpperCase();
     let orderType = req.query.orderType.toUpperCase();
-    let quantity = req.query.quantity;
-    let portfolioId = req.query.portfolioId;
-    let price = req.query.price;
+    let quantity = Number(req.query.quantity);
+    let portfolioId = Number(req.query.portfolioId);
+    let price = Number(req.query.price);
 
     let cashResponse = await db.getCash(portfolioId);
-    let currentCash = cashResponse[0].cash;
+    let currentCash = Number(cashResponse[0].cash);
     totalValue = quantity*price;
     let run = false;
 
-    let quantityResponse = await db.getQuantity(portfolioId, ticker)
-    let totalQuantity = quantityResponse[0].quantity
-    console.log(totalQuantity);
+    let quantityResponse = await db.getQuantity(portfolioId, ticker);
+    let totalQuantity = Number(quantityResponse[0].quantity);
 
     console.log(`${totalValue} < ${currentCash}`);
     console.log(`${quantity} < ${totalQuantity}`);
 
-    if ((orderType === 'BUY') &&  (currentCash > totalValue)) {
+    if ((orderType === 'BUY') && (currentCash > totalValue)) {
         db.buyOrderCash(totalValue, portfolioId);
         run = true;
     } else if ((orderType === 'SELL') && (quantity < totalQuantity)) {
