@@ -1,7 +1,5 @@
 let express = require("express");
-let { Pool } = require("pg");
-let bcrypt = require("bcrypt");
-const crypto = require('crypto');
+let pool = require('./utils/dbConn')
 let cookieParser = require("cookie-parser");
 let bodyParser = require('body-parser');
 var multer = require('multer');
@@ -9,7 +7,13 @@ var upload = multer();
 let sessions = require('express-session');
 const path = require('path')
 const asyncHandler = require('express-async-handler')
-require('express-async-errors')
+require('express-async-errors');
+
+
+// Routes
+const user = require('./routes/user');
+const portfolio = require('./routes/portfolio');
+
 
 let iex = require('./utils/iex');
 let db = require('./utils/postgres');
@@ -21,8 +25,9 @@ let port = 3000;
 let app = express();
 
 
-app.set(path.join(__dirname, 'views'))
-app.set('view engine', 'pug')
+app.set(path.join(__dirname, 'views'));
+app.set('view engine', 'pug');
+app.set('authTokens', {});
 
 
 // creating 24 hours from milliseconds
@@ -55,6 +60,7 @@ app.use((req, res, next) => {
     const authToken = req.cookies['AuthToken'];
 
     // Inject the user to the request
+    var authTokens = req.app.get('authTokens');
     req.user = authTokens[authToken];
     res.locals.user = req.user;
     // for testing
@@ -106,158 +112,10 @@ app.use((req, res, next) => {
 app.use(express.json());
 app.use(express.static('public'));
 
-let pool = new Pool(env);
-pool.connect().then(() => {
-    console.log("Connected to database");
-});
+app.use("/user", user);
+app.use("/portfolio", portfolio);
 
-// https://github.com/kelektiv/node.bcrypt.js#a-note-on-rounds
-let saltRounds = 10;
 
-const generateAuthToken = () => {
-    return crypto.randomBytes(32).toString('hex');
-}
-
-// This will hold the users and authToken related to users
-// Ideally this should be stored in Redis or some other db instead
-const authTokens = {};
-
-app.get('/bootstrap', asyncHandler(async (req, res) => {
-    var portfolios = await db.getPortfolios(pool, 1);
-    var holdings = await db.getPortfolioHoldings(pool, 1);
-    console.log(holdings);
-    res.render('base_index', {
-        test: "fantasyStocks",
-        portfolios: portfolios
-    });
-}));
-
-app.get("/portfolio/:portfolioId", asyncHandler(async (req, res) => {
-    let portfolioId = req.params.portfolioId;
-    var portfolioCash = await db.getCash(pool, portfolioId);
-    console.log("portfolio cash", portfolioCash);
-
-    var holdings = await db.getPortfolioHoldings(pool, portfolioId);
-    let tickerList = holdings.map(row => row.symbol);
-
-    // calculate current value for each stock based on current price and quantity
-    for (let row of holdings) {
-        let price = await iex.getPrice(row.symbol);
-        console.log(row.symbol, price.data);
-        row.current_value = parseFloat(price.data) * parseFloat(row.quantity);
-    }
-    
-    // get the total value of all the stocks in the portfolio
-    var portfolioStockValue = holdings.reduce((a, row) => a + parseFloat(row.current_value), 0);
-
-    var quotes = await iex.getQuotes(tickerList.join());
-    quotes = quotes.data;
-    holdings.forEach((row) => {
-        quotes[row.symbol]['portfolio'] = row
-    });
-    res.render('portfolio', {
-        holdings: Object.values(quotes),
-        cash: portfolioCash[0].cash,
-        totalPortfolioValue: parseFloat(portfolioCash[0].cash) + parseFloat(portfolioStockValue)
-    });
-}));
-
-app.get("/user/create", (req, res) => {
-    res.render('create_user');
-});
-
-app.post("/user/create", (req, res) => {
-    let username = req.body.username;
-    let plaintextPassword = req.body.password;
-    let email = req.body.email;
-
-    bcrypt
-        .hash(plaintextPassword, saltRounds)
-        .then((hashedPassword) => {
-            pool.query(
-                "INSERT INTO users (username, password, email) VALUES ($1, $2, $3)",
-                [username, hashedPassword, email]
-            )
-                .then(() => {
-                    // account created
-                    console.log(username, "account created");
-                    res.status(200);
-                    res.render('create_user', {
-                        user_created: true,
-                        username: username
-                    })
-                })
-                .catch((error) => {
-                    // insert failed
-                    if (error.detail === `Key (username)=(${username}) already exists.`) {
-                        res.status(401);
-                        res.render('create_user', {
-                            username_taken: true,
-                            username: username
-                        })
-                        // return res.status(401).send("Username is already taken.");
-                    } else {
-                        return res.status(500).send("Account creation failed");
-                    }
-                });
-        })
-        .catch((error) => {
-            // bcrypt crashed
-            console.log(error);
-            res.status(500).send();
-        });
-});
-
-app.get('/user/login', (req, res) => {
-    res.render('login');
-});
-
-app.post("/user/login", asyncHandler(async (req, res) => {
-    let username = req.body.username;
-    let plaintextPassword = req.body.password;
-    const result = await pool.query("SELECT password FROM users WHERE username = $1", [username])
-    if (result.rows.length === 0) {
-        res.status(401);
-        res.render('login', {
-            error: "Incorrect username or password"
-        })
-    } else {
-        let hashedPassword = result.rows[0].password;
-        let passwordMatched = await bcrypt.compare(plaintextPassword, hashedPassword);
-        if (passwordMatched) {
-            console.log('password matched');
-            let user_query = await pool.query("SELECT user_id FROM users WHERE username = $1", [username])
-            console.log(user_query);
-            if (user_query.rows.length > 0) {
-                var user_id = user_query.rows[0].user_id;
-                const authToken = generateAuthToken();
-                let portfolios = await db.getPortfolios(pool, user_id);
-                portfolios = portfolios.reduce((obj, item) => (obj[item.portfolio_id] = item, obj) ,{})
-                // Store authentication token
-                authTokens[authToken] = {
-                    username: username,
-                    user_id: user_id,
-                    portfolios: portfolios
-                };
-                console.log(authTokens[authToken]);
-                // Setting the auth token in cookies
-                res.cookie('AuthToken', authToken);
-                return res.redirect("/");
-            }
-        } else {
-            console.log('not matched password');
-            res.status(401);
-            return res.render('login', {
-                error: "Incorrect username or password"
-            });
-        }
-    }
-}));
-
-app.get("/user/logout", (req,res) => {
-    res.cookie('AuthToken', 'None')
-    res.redirect('/user/login');
-});
 
 function requireAuth(req, res, next) {
     console.log('requireAuth');
@@ -276,28 +134,9 @@ app.get("/", (req, res) => {
     let user = req.user;
     // we can access the username of the currently logged in user this way
     // lets us query data from the database
-    console.log(res.locals.user);
+    // console.log(res.locals.user);
     res.render('index');
     // res.sendFile('public/index.html', {root: __dirname})
-})
-
-// Show portfolio 
-app.get("/portfolio", (req, res) => {
-    portfolioId = req.query.portfolioId;
-    pool.query(
-        `SELECT 
-         symbol,
-         sum(CASE WHEN order_type = 'BUY' THEN quantity*unit_price ELSE 0 END) AS BuyAmount,
-         sum(CASE WHEN order_type = 'SELL' THEN quantity*unit_price ELSE 0 END) AS SellAmount,
-         sum((case when order_type = 'BUY' then 1 else -1 end) * quantity * unit_price) as total,
-         sum((case when order_type = 'BUY' then 1 else -1 end) * quantity) as quantity
-         FROM orders
-         WHERE portfolio_id=$1
-         GROUP BY symbol, portfolio_id
-         ORDER BY symbol;`, [portfolioId]
-    ).then(result => {
-        return res.json({"rows": result.rows});
-    });
 })
 
 app.get("/search", asyncHandler(async (req, res) => {
@@ -410,30 +249,6 @@ app.get("/cash", (req, res) => {
     });
 })
 
-app.get('/create/portfolio', function (req, res) {
-    res.sendFile('public/portfolioCreate.html' , { root : __dirname});
-});
-
-app.post("/create/portfolio", (req, res) => {
-    let userID = req.user.user_id;
-    let name = req.body.name;
-    let cash = req.body.cash;
-    console.log(req.user.user_id);
-    pool.query(
-        "INSERT INTO portfolios (user_id, name, cash) VALUES ($1, $2, $3)",
-        [userID, name, cash]
-    )
-        .then(() => {
-            // portfolio created
-            console.log(name, "portfolio created");
-            res.status(200).send();
-        })
-        .catch((error) => {
-            // insert failed
-            console.log(error);
-            return res.status(500).send("Portfolio creation failed");
-        });
-});
 
 app.listen(port, hostname, () => {
     console.log(`http://${hostname}:${port}`);

@@ -31,10 +31,10 @@ exports.getQuote = async (symbol) => {
     }
 };
 
-exports.getPrice = async (symbol) => {
+exports.getPrices = async (symbols) => {
     try {
-        let endpoint = `stock/${symbol}/price`
-        query = `?token=${apiKey}&displayPercent=true`
+        let endpoint = "stock/market/batch"
+        query = `?token=${apiKey}&symbols=${symbols}&types=price`
         let url = `${baseUrl}/${endpoint}${query}`
         const response = await axios.get(url);
         return response;

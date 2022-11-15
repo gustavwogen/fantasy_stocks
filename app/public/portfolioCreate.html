@@ -44,7 +44,7 @@
 				result.textContent = "Invalid Portfolio Name. Must be less than 50 characters"
 				result.classList.add("error");
 			} else {
-				fetch("/create/portfolio", {
+				fetch("/portfolio/create", {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json"
