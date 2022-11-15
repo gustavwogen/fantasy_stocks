@@ -37,7 +37,8 @@ router.get("/", (req, res) => {
 })
 
 router.get('/create', function (req, res) {
-    res.sendFile('public/portfolioCreate.html' , { root : process.cwd()});
+    //res.sendFile('public/portfolioCreate.html' , { root : process.cwd()});
+    res.render('create_portfolio');
 });
 
 router.post("/create", (req, res) => {

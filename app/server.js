@@ -83,7 +83,17 @@ app.use((req, res, next) => {
             cash: '100000',
             created_at: "2022-11-13T04:19:18.119Z"
           }
-        }
+        },
+        games: {
+            '1': {
+                game_id: 18,
+                name: "game30"
+            },
+            '2': {
+                game_id: 16,
+                name: "game25"
+            }
+        } 
       }
     // for testing
     res.locals.user = {
@@ -104,6 +114,16 @@ app.use((req, res, next) => {
             cash: '100000',
             created_at: "2022-11-13T04:19:18.119Z"
           }
+        },
+        games: {
+            '1': {
+                game_id: 18,
+                name: "game30"
+            },
+            '2': {
+                game_id: 16,
+                name: "game25"
+            }
         }
       }
     next();

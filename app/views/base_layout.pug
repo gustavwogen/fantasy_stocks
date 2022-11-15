@@ -20,9 +20,6 @@ html(lang="en")
           li(class="nav-item active")
             a(class="nav-link" href="/") Home
               span(class="sr-only") (current)
-          li(class="nav-item dropdown")
-            a(class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false") Games
-              div(class="dropdown-menu" aria-labelledby="navbarDropdown")
           if user.portfolios
             li(class="nav-item dropdown")
               a(class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false") Portfolios
@@ -30,7 +27,7 @@ html(lang="en")
                 each portfolio, portfolio_id in user.portfolios
                   a(class="dropdown-item" href=`/portfolio/${portfolio_id}`)= portfolio.name
                 div(class="dropdown-divider")
-                a(class="dropdown-item" href="/create/portfolio") Create new portfolio
+                a(class="dropdown-item" href="/portfolio/create") Create new portfolio
           if user.games
             li(class="nav-item dropdown")
               a(class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false") Games
@@ -38,7 +35,7 @@ html(lang="en")
                 each game, game_id in user.games
                   a(class="dropdown-item" href=`/game/${game_id}`)= game.name
                 div(class="dropdown-divider")
-                a(class="dropdown-item" href="#") Create new game
+                a(class="dropdown-item" href="/game/create") Create new game
           li(class="nav-item")
             a(class="nav-link" href="/user/logout") Sign out
           li(class="nav-item")
