@@ -1,0 +1,57 @@
+extends base_layout
+
+block scripts 
+
+block content
+    div(class="row h-100 justify-content-center align-items-center")
+        h2 Create a new portfolio
+    div(class="row h-100 justify-content-center align-items-center")
+        table
+            tr
+                td
+                    label(name='name' for='name') Name:
+                td
+                    input#name(type='text')
+            tr
+                td
+                    label(name='cost' for='cost') Starting Cash: 
+                td
+                    input#cost(type='number' step='any')
+    p
+    div(class="row h-100 justify-content-center align-items-center")
+        button#create Create New Portfolio
+        #result &nbsp;
+
+    script.
+        let nameInput = document.getElementById("name");
+        let costInput = document.getElementById("cost");
+        document.getElementById("create").addEventListener("click", () => {
+        if (costInput.value <= 0) {
+        result.textContent = "must have a value greater than 0"
+        result.classList.add("error");
+        } else if (nameInput.value.length > 50) {
+        result.textContent = "Invalid Portfolio Name. Must be less than 50 characters"
+        result.classList.add("error");
+        } else {
+        fetch("/portfolio/create", {
+        method: "POST",
+        headers: {
+        "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+        name: nameInput.value,
+        cash: costInput.value,
+        })
+        }).then((response) => {
+        if (response.status === 200) {
+        result.textContent = "Portfolio was created";
+        result.classList.remove("error");
+        } else {
+        response.text().then((text) => {
+        result.textContent = text;
+        })
+        result.classList.add("error");
+        }
+        });
+        }
+        });
