@@ -1,0 +1,30 @@
+extends base_layout
+
+block scripts 
+
+block content
+    div(class="row h-100 justify-content-center align-items-center")
+        form(action='/game/create' method='post')
+            ul#fieldList
+                li
+                input(name='name' type='text' placeholder='Name')
+                li
+                input(name='cash' type='number' placeholder='Starting Cash')
+                li
+                input(name='users[]' type='text' placeholder='User Name')
+            br
+            button#addMore Add more users
+            br
+            br
+            button#createGame(type='submit') Create Game
+        style.
+            ul {
+            padding: 0;
+            margin: 0;
+            }
+            ul li {
+            list-style: none;
+            }
+
+    script(src="/scripts/games.js") 
+    

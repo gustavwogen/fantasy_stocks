@@ -20,8 +20,9 @@ html(lang="en")
           li(class="nav-item active")
             a(class="nav-link" href="/") Home
               span(class="sr-only") (current)
-          li(class="nav-item")
-            a(class="nav-link" href="#") Link
+          li(class="nav-item dropdown")
+            a(class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false") Games
+              div(class="dropdown-menu" aria-labelledby="navbarDropdown")
           if user.portfolios
             li(class="nav-item dropdown")
               a(class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false") Portfolios

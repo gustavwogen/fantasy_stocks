@@ -46,6 +46,7 @@ CREATE TABLE orders (
 CREATE TABLE games (
   game_id SERIAL PRIMARY KEY,
   user_id INT,
+  game_name VARCHAR(50),
   start_date timestamp,
   end_date timestamp check (end_date > start_date),
   start_cash NUMERIC DEFAULT 100000 check (start_cash > 0)
