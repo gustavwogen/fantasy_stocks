@@ -86,12 +86,12 @@ app.use((req, res, next) => {
         },
         games: {
             '1': {
-                game_id: 18,
-                name: "game30"
+                game_id: 1,
+                name: "First Game"
             },
             '2': {
-                game_id: 16,
-                name: "game25"
+                game_id: 2,
+                name: "Sedcond Game"
             }
         } 
       }
@@ -117,12 +117,12 @@ app.use((req, res, next) => {
         },
         games: {
             '1': {
-                game_id: 18,
-                name: "game30"
+                game_id: 1,
+                name: "First Game"
             },
             '2': {
-                game_id: 16,
-                name: "game25"
+                game_id: 2,
+                name: "Second Game"
             }
         }
       }

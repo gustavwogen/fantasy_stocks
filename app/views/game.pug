@@ -1,0 +1,55 @@
+extends base_layout
+
+block scripts 
+
+block content
+
+  if holdings.length > 0
+    div(class="container")
+      h1#Game-name= `Game: ${gameName}`
+      h2#total-value= `Total value: ${totalPortfolioValue}`
+      h4#cash= `Available cash: ${cash}`
+      br
+      div(class="table-responsive")
+        table(class="table table-bordered table-hover")
+          thead 
+            tr
+              th(scope="col") Company Name
+              th(scope="col") Symbol
+              th(scope="col") Current Price 
+              th(scope="col") Quantity 
+              th(scope="col") Average Price
+              th(scope="col") Total
+              th(scope="col") Daily Change
+              th(scope="col") YTD Change 
+              th(scope="col") Current Value
+              th(scope="col") Yield
+          tbody
+            each row in holdings
+              tr(id=`${row.quote.symbol}`)
+                td= row.quote.companyName
+                td= row.quote.symbol
+                td= Number.parseFloat(row.quote.latestPrice).toFixed(2)
+                td= row.portfolio.quantity
+                td= Number.parseFloat(row.portfolio.total / row.portfolio.quantity).toFixed(2)
+                td= Number.parseFloat(row.portfolio.total).toFixed(2)
+                td(class=row.quote.changePercent >= 0 ? "text-success" : "text-danger")= `${Number.parseFloat(row.quote.changePercent).toFixed(2)}%`
+                td(class=row.quote.ytdChange >= 0 ? "text-success" : "text-danger")= `${Number.parseFloat(row.quote.ytdChange).toFixed(2)}%`
+                td= Number.parseFloat(row.portfolio.quantity * row.quote.latestPrice).toFixed(2)
+                - var stockYield = row.quote.latestPrice / (row.portfolio.total / row.portfolio.quantity) - 1
+                td(class=stockYield >= 0 ? "text-success" : "text-danger")= `${Number.parseFloat(stockYield * 100).toFixed(2)}%`
+  else 
+    p bye
+  
+  script.
+    let dollarUS = Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+    });
+
+    let totalValue = document.getElementById('total-value')
+    totalValue.textContent = `Total value: ${dollarUS.format(parseFloat(totalValue.textContent.slice(13)))}`;
+    
+    let cash = document.getElementById('cash');
+    console.log(cash.textContent.slice(15));
+    cash.textContent = `Available cash: ${dollarUS.format(parseFloat(cash.textContent.slice(15)))}`;

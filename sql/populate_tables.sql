@@ -9,7 +9,7 @@ VALUES
 ;
 
 
-INSERT INTO portfolios (user_id, name)
+INSERT INTO portfolios (user_id, name, game_id)
 VALUES 
 (1, 'to the moon'),
 (1, '2nd portfolio'),
@@ -17,6 +17,8 @@ VALUES
 (3, 'filips portfolio'),
 (4, 'andrews portfolio');
 
+UPDATE portfolios SET game_id=1 WHERE portfolio_id=1;
+UPDATE portfolios SET game_id=2 WHERE portfolio_id=2;
 
 -- Portfolio "to the moon"
 INSERT INTO orders 
