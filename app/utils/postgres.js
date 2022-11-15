@@ -69,6 +69,24 @@ const getPortfolioHoldings = async (pool, portfolioId) => {
     }
 }
 
+const getGamePortfolios = async (pool, gameId, userId)=> {
+    try {
+        const result = await pool.query('SELECT portfolio_id from portfolios where game_id = $1 AND user_id = $2 ', [gameId, userId])
+        return result.rows;
+    } catch (error) {
+        return error;
+    }
+}
+
+const getGameName = async (pool, gameId)=> {
+    try {
+        const result = await pool.query('SELECT game_name from games where game_id = $1', [gameId])
+        return result.rows;
+    } catch (error) {
+        return error;
+    }
+}
+
 const buyOrderCash = async (pool, totalValue, portfolioId)=> {
     try {
         const result = await pool.query(`UPDATE portfolios set cash=cash-$1 where portfolio_id=$2;`,[totalValue, portfolioId])
@@ -123,6 +141,8 @@ module.exports = {
     getUserId,
     getGameId,
     getPortfolioHoldings,
+    getGamePortfolios,
+    getGameName,
     buyOrderCash,
     sellOrderCash,
     getCash,

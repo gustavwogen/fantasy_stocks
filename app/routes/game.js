@@ -59,4 +59,49 @@ router.post("/create", asyncHandler(async (req, res) => {
     return res.redirect('/game/create');
 }));
 
+
+router.get("/:gameId", asyncHandler(async (req, res) => {
+    let gameId = req.params.gameId;
+    let userId = req.user.user_id;
+    console.log(gameId, userId);
+    let portfolioIdPromise = await db.getGamePortfolios(pool, gameId, userId);
+    let portfolioId = portfolioIdPromise[0].portfolio_id;
+    console.log(portfolioId);
+    var portfolioCash = await db.getCash(pool, portfolioId);
+
+    var holdings = await db.getPortfolioHoldings(pool, portfolioId);
+    let tickerList = holdings.map(row => row.symbol);
+
+    var quotes = await iex.getQuotes(tickerList.join());
+    quotes = quotes.data;
+
+    // transform holdings array into an object
+    var holdings_object = holdings.reduce((obj, item) => (obj[item.symbol] = item, obj) ,{});
+
+    // for each symbol calculate the current value in the portfolio
+    Object.keys(quotes).forEach(key => {
+        holdings_object[key].current_value = parseInt(holdings_object[key].quantity) * quotes[key].quote.latestPrice
+    });
+    
+    var holdings = Object.values(holdings_object);
+
+    // // get the total value of all the stocks in the portfolio
+    var portfolioStockValue = holdings.reduce((a, row) => a + parseFloat(row.current_value), 0);
+
+    holdings.forEach((row) => {
+        quotes[row.symbol]['portfolio'] = row
+    });
+
+    gameName = await db.getGameName(pool, gameId);
+    console.log(gameName);
+
+    console.log(quotes);
+    res.render('game', {
+        holdings: Object.values(quotes),
+        cash: portfolioCash[0].cash,
+        totalPortfolioValue: parseFloat(portfolioCash[0].cash) + parseFloat(portfolioStockValue),
+        gameName: gameName[0].game_name
+    });
+}));
+
 module.exports = router;
