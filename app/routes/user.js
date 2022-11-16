@@ -92,13 +92,16 @@ router.post("/login", asyncHandler(async (req, res) => {
                 var user_id = user_query.rows[0].user_id;
                 const authToken = generateAuthToken();
                 let portfolios = await db.getPortfolios(pool, user_id);
-                portfolios = portfolios.reduce((obj, item) => (obj[item.portfolio_id] = item, obj) ,{})
+                portfolios = portfolios.reduce((obj, item) => (obj[item.portfolio_id] = item, obj) ,{});
+                let games = await db.getGames(pool, user_id);
+                games = games.reduce((obj, item) => (obj[item.game_id] = item, obj) ,{});
                 // Store authentication token
                 var authTokens = req.app.get('authTokens');
                 authTokens[authToken] = {
                     username: username,
                     user_id: user_id,
-                    portfolios: portfolios
+                    portfolios: portfolios,
+                    games: games
                 };
                 // Setting the auth token in cookies
                 res.cookie('AuthToken', authToken);

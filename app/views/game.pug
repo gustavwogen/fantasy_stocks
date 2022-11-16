@@ -39,7 +39,9 @@ block content
                 - var stockYield = row.quote.latestPrice / (row.portfolio.total / row.portfolio.quantity) - 1
                 td(class=stockYield >= 0 ? "text-success" : "text-danger")= `${Number.parseFloat(stockYield * 100).toFixed(2)}%`
   else 
-    p bye
+    div(class="container")
+      h4#cash= `Available cash: $${cash}`
+      p Portfolio for this game is Empty
   
   script.
     let dollarUS = Intl.NumberFormat("en-US", {
