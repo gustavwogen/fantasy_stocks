@@ -33,7 +33,7 @@ html(lang="en")
               a(class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false") Games
               div(class="dropdown-menu" aria-labelledby="navbarDropdown")
                 each game, game_id in user.games
-                  a(class="dropdown-item" href=`/game/${game_id}`)= game.name
+                  a(class="dropdown-item" href=`/game/${game_id}`)= game.game_name
                 div(class="dropdown-divider")
                 a(class="dropdown-item" href="/game/create") Create new game
           li(class="nav-item")

@@ -64,68 +64,74 @@ app.use((req, res, next) => {
     var authTokens = req.app.get('authTokens');
     req.user = authTokens[authToken];
     res.locals.user = req.user;
+    // if (req.user) {
+    //     console.log("user", req.user);
+    //     console.log("MyPortfolio", req.user.portfolios);
+    //     console.log("MyGames", req.user.games);
+    // }
+
     // for testing
-    req.user = {
-        username: 'admin',
-        user_id: 1,
-        portfolios: {
-          '1': {
-            portfolio_id: 1,
-            user_id: 1,
-            name: 'to the moon',
-            cash: '63219.29',
-            created_at: "2022-11-13T04:19:18.119Z"
-          },
-          '2': {
-            portfolio_id: 2,
-            user_id: 1,
-            name: '2nd portfolio',
-            cash: '100000',
-            created_at: "2022-11-13T04:19:18.119Z"
-          }
-        },
-        games: {
-            '1': {
-                game_id: 1,
-                name: "First Game"
-            },
-            '2': {
-                game_id: 2,
-                name: "Sedcond Game"
-            }
-        } 
-      }
-    // for testing
-    res.locals.user = {
-        username: 'admin',
-        user_id: 1,
-        portfolios: {
-          '1': {
-            portfolio_id: 1,
-            user_id: 1,
-            name: 'to the moon',
-            cash: '63219.29',
-            created_at: "2022-11-13T04:19:18.119Z"
-          },
-          '2': {
-            portfolio_id: 2,
-            user_id: 1,
-            name: '2nd portfolio',
-            cash: '100000',
-            created_at: "2022-11-13T04:19:18.119Z"
-          }
-        },
-        games: {
-            '1': {
-                game_id: 1,
-                name: "First Game"
-            },
-            '2': {
-                game_id: 2,
-                name: "Second Game"
-            }
-        }
-      }
+//     req.user = {
+//         username: 'admin',
+//         user_id: 1,
+//         portfolios: {
+//           '1': {
+//             portfolio_id: 1,
+//             user_id: 1,
+//             name: 'to the moon',
+//             cash: '63219.29',
+//             created_at: "2022-11-13T04:19:18.119Z"
+//           },
+//           '2': {
+//             portfolio_id: 2,
+//             user_id: 1,
+//             name: '2nd portfolio',
+//             cash: '100000',
+//             created_at: "2022-11-13T04:19:18.119Z"
+//           }
+//         },
+//         games: {
+//             '1': {
+//                 game_id: 1,
+//                 name: "First Game"
+//             },
+//             '2': {
+//                 game_id: 2,
+//                 name: "Sedcond Game"
+//             }
+//         } 
+//       }
+//     // for testing
+//     res.locals.user = {
+//         username: 'admin',
+//         user_id: 1,
+//         portfolios: {
+//           '1': {
+//             portfolio_id: 1,
+//             user_id: 1,
+//             name: 'to the moon',
+//             cash: '63219.29',
+//             created_at: "2022-11-13T04:19:18.119Z"
+//           },
+//           '2': {
+//             portfolio_id: 2,
+//             user_id: 1,
+//             name: '2nd portfolio',
+//             cash: '100000',
+//             created_at: "2022-11-13T04:19:18.119Z"
+//           }
+//         },
+//         games: {
+//             '1': {
+//                 game_id: 1,
+//                 name: "First Game"
+//             },
+//             '2': {
+//                 game_id: 2,
+//                 name: "Second Game"
+//             }
+//         }
+//       }
     next();
 });
 
@@ -137,8 +143,6 @@ app.use("/user", user);
 app.use("/portfolio", portfolio);
 app.use("/game", game);
 
-
-
 function requireAuth(req, res, next) {
     console.log('requireAuth');
     if (req.user) {
@@ -149,7 +153,7 @@ function requireAuth(req, res, next) {
     }
 };
 
-//app.use(requireAuth); // user will need to be logged in to access any route under this line 
+app.use(requireAuth); // user will need to be logged in to access any route under this line 
 
 
 app.get("/", (req, res) => {
@@ -206,7 +210,7 @@ app.get("/price", (req, res) => {
     let ticker = req.query.symbol;
     iex.getQuote(ticker).then((response) => {
         if (response.status === 200) {
-            console.log(data);
+            //console.log(data);
             var data = response.data;
             res.json(data);
         } else {
