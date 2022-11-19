@@ -35,11 +35,6 @@ router.post("/create", asyncHandler(async (req, res) => {
     let gameName = req.body.name;
     let cash = Number(req.body.cash);
     let userList = req.body.users;
-    // console.log("User ID:",userId);
-    // console.log("Game name:",gameName);
-    // console.log("Cash:",cash);
-    // console.log("MyUser:",req.user.username);
-    // console.log("Users:",req.body.users);
 
     //First create game from input, then use that game-ID to create a portfolio and link the game-ID with the user-ID of creator
     //Then loop through the list of all users that should be in the game and do the same
@@ -62,51 +57,29 @@ router.post("/create", asyncHandler(async (req, res) => {
 
 router.get("/:gameId", asyncHandler(async (req, res) => {
     let gameId = req.params.gameId;
-    let userId = req.user.user_id;
-    console.log(gameId, userId);
-    let portfolioIdPromise = await db.getGamePortfolios(pool, gameId, userId);
-    let portfolioId = portfolioIdPromise[0].portfolio_id;
-    console.log(portfolioId);
-    var portfolioCash = await db.getCash(pool, portfolioId);
+    
+    let portfolios = await db.getGamePortfolios(pool, gameId);
+    let portfolioIds = portfolios.map(row => Number(row.portfolio_id));
+    let cashList = portfolios.map(row => row.cash);
+    let names = portfolios.map(row => row.name);
+    let allUserIds = portfolios.map(row => row.user_id);
+  
     gameName = await db.getGameName(pool, gameId);
+    holdings = await db.getOriginalValues(pool, portfolioIds);
 
-    var holdings = await db.getPortfolioHoldings(pool, portfolioId);
-    if (holdings.length === 0) {
-        return res.render('game', {
-            holdings: [],
-            cash: portfolioCash[0].cash,
-            gameName: gameName[0].game_name
-        });
-    } else {
-        let tickerList = holdings.map(row => row.symbol);
 
-        var quotes = await iex.getQuotes(tickerList.join());
-        quotes = quotes.data;
+    console.log(holdings);
 
-        // transform holdings array into an object
-        var holdings_object = holdings.reduce((obj, item) => (obj[item.symbol] = item, obj) ,{});
 
-        // for each symbol calculate the current value in the portfolio
-        Object.keys(quotes).forEach(key => {
-            holdings_object[key].current_value = parseInt(holdings_object[key].quantity) * quotes[key].quote.latestPrice
-        });
-        
-        var holdings = Object.values(holdings_object);
+    res.render('game', {
+        user: allUserIds,
+        cash: cashList,
+        portfolios: portfolios,
+        holdings: holdings,
+        //totalPortfolioValue: parseFloat(cashList[0]) + parseFloat(portfolioStockValue),
+        gameName: gameName[0].game_name
+    });
 
-        // // get the total value of all the stocks in the portfolio
-        var portfolioStockValue = holdings.reduce((a, row) => a + parseFloat(row.current_value), 0);
-
-        holdings.forEach((row) => {
-            quotes[row.symbol]['portfolio'] = row
-        });
-
-        res.render('game', {
-            holdings: Object.values(quotes),
-            cash: portfolioCash[0].cash,
-            totalPortfolioValue: parseFloat(portfolioCash[0].cash) + parseFloat(portfolioStockValue),
-            gameName: gameName[0].game_name
-        });
-    }
 }));
 
 module.exports = router;
