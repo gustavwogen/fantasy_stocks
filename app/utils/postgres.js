@@ -37,7 +37,7 @@ const getGameId = async (pool, gameName)=> {
 
 const getCash = async (pool, portfolioId)=> {
     try {
-        const result = await pool.query(`SELECT portfolio_id, cash from portfolios where portfolio_id=$1`, [portfolioId])
+        const result = await pool.query(`SELECT portfolio_id, cash from portfolios where game_id=$1`, [portfolioId])
         return result.rows;
     } catch (error) {
         return error;
@@ -62,13 +62,13 @@ const getPortfolioHoldings = async (pool, portfolioId) => {
     try {
         const result = await pool.query(
             `SELECT 
-             symbol,
+             portfolio_id, symbol,
              sum(CASE WHEN order_type = 'BUY' THEN quantity*unit_price ELSE 0 END) AS BuyAmount,
              sum(CASE WHEN order_type = 'SELL' THEN quantity*unit_price ELSE 0 END) AS SellAmount,
              sum((case when order_type = 'BUY' then 1 else -1 end) * quantity * unit_price) as total,
              sum((case when order_type = 'BUY' then 1 else -1 end) * quantity) as quantity
              FROM orders
-             WHERE portfolio_id=$1
+             WHERE portfolio_id = $1
              GROUP BY symbol, portfolio_id
              ORDER BY symbol;`, [portfolioId]
         )
@@ -78,9 +78,29 @@ const getPortfolioHoldings = async (pool, portfolioId) => {
     }
 }
 
-const getGamePortfolios = async (pool, gameId, userId)=> {
+const getOriginalValues = async (pool, portfolioId) => {
     try {
-        const result = await pool.query('SELECT portfolio_id from portfolios where game_id = $1 AND user_id = $2 ', [gameId, userId])
+        const result = await pool.query(
+            `SELECT 
+            portfolio_id,        
+            sum(CASE WHEN order_type = 'BUY' THEN quantity*unit_price ELSE 0 END) AS BuyAmount,
+            sum(CASE WHEN order_type = 'SELL' THEN quantity*unit_price ELSE 0 END) AS SellAmount,
+            sum((case when order_type = 'BUY' then 1 else -1 end) * quantity * unit_price) as total,
+            sum((case when order_type = 'BUY' then 1 else -1 end) * quantity) as quantity
+            FROM orders
+            WHERE portfolio_id = ANY($1::int[])
+            GROUP BY portfolio_id
+            ORDER BY portfolio_id;`, [portfolioId]
+        )
+        return result.rows;
+    } catch (error) {
+        return error;
+    }
+}
+
+const getGamePortfolios = async (pool, gameId)=> {
+    try {
+        const result = await pool.query('SELECT * from portfolios where game_id = $1 order by cash desc', [gameId])
         return result.rows;
     } catch (error) {
         return error;
@@ -90,6 +110,15 @@ const getGamePortfolios = async (pool, gameId, userId)=> {
 const getGameName = async (pool, gameId)=> {
     try {
         const result = await pool.query('SELECT game_name from games where game_id = $1', [gameId])
+        return result.rows;
+    } catch (error) {
+        return error;
+    }
+}
+
+const getGameUsers = async (pool, gameId)=> {
+    try {
+        const result = await pool.query('SELECT user_id from users_games where game_id = $1', [gameId])
         return result.rows;
     } catch (error) {
         return error;
@@ -150,8 +179,10 @@ module.exports = {
     getUserId,
     getGameId,
     getPortfolioHoldings,
+    getOriginalValues,
     getGamePortfolios,
     getGameName,
+    getGameUsers,
     buyOrderCash,
     sellOrderCash,
     getCash,
