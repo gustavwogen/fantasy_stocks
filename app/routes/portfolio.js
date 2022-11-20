@@ -89,9 +89,13 @@ router.get("/:portfolioId", asyncHandler(async (req, res) => {
         });
         
         var holdings = Object.values(holdings_object);
-
+        console.log(holdings.total)
         // // get the total value of all the stocks in the portfolio
         var portfolioStockValue = holdings.reduce((a, row) => a + parseFloat(row.current_value), 0);
+        var originalValue = holdings.reduce((a, row) => a + parseFloat(row.total), 0);
+        
+        // Calculate the total yield of the portfolio
+        var totalYield = parseFloat((portfolioStockValue/originalValue) - 1)
 
         holdings.forEach((row) => {
             quotes[row.symbol]['portfolio'] = row
@@ -101,7 +105,8 @@ router.get("/:portfolioId", asyncHandler(async (req, res) => {
         res.render('portfolio', {
             holdings: Object.values(quotes),
             cash: portfolioCash[0].cash,
-            totalPortfolioValue: parseFloat(portfolioCash[0].cash) + parseFloat(portfolioStockValue)
+            totalPortfolioValue: parseFloat(portfolioCash[0].cash) + parseFloat(portfolioStockValue),
+            totalYield: totalYield
         });
     }
 }));
