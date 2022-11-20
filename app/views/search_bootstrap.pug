@@ -31,14 +31,14 @@ block content
             div(class="modal-body")
               div(class="form-group")
                 label(for="portfolioBuy") Portfolio
-                  select#exampleFormControlSelect1.form-control
-                    if user.portfolios
-                      each portfolio, portfolio_id in user.portfolios
-                        option(value=`/portfolio/${portfolio_id}`) #{portfolio.name}
-                    br
-                    label(for="quantityBuy") Quantity
-                    input#quantityBuy(type="number" class="form-control" name="quantityBuy" value="0" min="1" oninput="calculateTotalBuy()" required)
-                    h2#totalPriceBuy(class="pt-2")
+                select#exampleFormControlSelect1.form-control
+                  if user.portfolios
+                    each portfolio, portfolio_id in user.portfolios
+                      option(value=`/portfolio/${portfolio_id}`) #{portfolio.name}
+                br
+                label(for="quantityBuy") Quantity
+                input#quantityBuy(type="number" class="form-control" name="quantityBuy" value="0" min="1" oninput="calculateTotalBuy()" required)
+                h2#totalPriceBuy(class="pt-2")
 
             div(class="modal-footer")
               button(type="button" class="btn btn-secondary" data-dismiss="modal") Close
@@ -53,11 +53,11 @@ block content
                 span(aria-hidden="true") &times;
             div(class="modal-body")
               div(class="form-group")
-                label(for="portfolioBuy") Portfolio
-                  select#exampleFormControlSelect1.form-control
-                    if user.portfolios
-                      each portfolio, portfolio_id in user.portfolios
-                        option(value=`/portfolio/${portfolio_id}`) #{portfolio.name}
+                label(for="portfolioSell") Portfolio
+                select#exampleFormControlSelect1.form-control
+                  if user.portfolios
+                    each portfolio, portfolio_id in user.portfolios
+                      option(value=`/portfolio/${portfolio_id}`) #{portfolio.name}
                 br
                 label(for="quantitySell") Quantity
                 input#quantitySell(type="number" class="form-control" name="quantitySell" value="0" min="1" oninput="calculateTotalSell()" required)
