@@ -183,16 +183,22 @@ app.get("/placeOrder", asyncHandler(async (req, res) => {
     let run = false;
 
     let quantityResponse = await db.getQuantity(pool, portfolioId, ticker);
-    let totalQuantity = Number(quantityResponse[0].quantity);
+    let totalQuantity = 0;
+    if(!(Object.keys(quantityResponse).length === 0)){ 
+        totalQuantity = Number(quantityResponse[0].quantity);
+    }
 
     console.log(`${totalValue} < ${currentCash}`);
     console.log(`${quantity} < ${totalQuantity}`);
 
-    if ((orderType === 'BUY') && (currentCash > totalValue)) {
+    if ((orderType === 'BUY') && (currentCash >= totalValue)) {
         db.buyOrderCash(pool, totalValue, portfolioId);
         run = true;
-    } else if ((orderType === 'SELL') && (quantity < totalQuantity)) {
+    } else if ((orderType === 'SELL') && (quantity <= totalQuantity)) {
         db.sellOrderCash(pool, totalValue, portfolioId);
+        if(totalQuantity-quantity===0){
+            await db.removeEmptyStock(pool, portfolioId, ticker);
+        }
         run = true
     } else if ((orderType === 'BUY') && (currentCash < totalValue)) {
         console.log("Not enough cash");
@@ -200,7 +206,7 @@ app.get("/placeOrder", asyncHandler(async (req, res) => {
     } else if ((orderType === 'SELL') && (quantity > totalQuantity)) {
         console.log("Do not own required quantity");
         return res.json("Do not own required quantity");
-    }
+    } 
 
     if (run) {
         console.log(ticker, orderType, quantity, portfolioId, price);

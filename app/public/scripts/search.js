@@ -7,7 +7,7 @@ if (buyButton) {
         let unitPrice = document.getElementById('latestPrice').textContent;
         let symbol = document.getElementById('buyModalTitle').textContent.slice(4);
         let orderType = 'BUY';
-        let portfolioId = 1;
+        let portfolioId = document.getElementById("exampleFormControlSelect1").value;
         let query = `symbol=${symbol}&orderType=${orderType}&portfolioId=${portfolioId}&price=${unitPrice}&quantity=${quantity}`
     
         fetch(`/placeOrder?${query}`).then((response) => {
@@ -36,7 +36,7 @@ if (sellButton) {
         let unitPrice = document.getElementById('latestPrice').textContent;
         let symbol = document.getElementById('buyModalTitle').textContent.slice(4);
         let orderType = 'SELL';
-        let portfolioId = 1;
+        let portfolioId = document.getElementById("exampleFormControlSelect2").value;
         let query = `symbol=${symbol}&orderType=${orderType}&portfolioId=${portfolioId}&price=${unitPrice}&quantity=${quantity}`
         console.log(quantity);
         fetch(`/placeOrder?${query}`).then((response) => {
