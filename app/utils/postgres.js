@@ -37,7 +37,7 @@ const getGameId = async (pool, gameName)=> {
 
 const getCash = async (pool, portfolioId)=> {
     try {
-        const result = await pool.query(`SELECT portfolio_id, cash from portfolios where game_id=$1`, [portfolioId])
+        const result = await pool.query(`SELECT portfolio_id, cash from portfolios where portfolio_id=$1`, [portfolioId])
         return result.rows;
     } catch (error) {
         return error;

@@ -11,11 +11,11 @@ VALUES
 
 INSERT INTO portfolios (user_id, name, game_id)
 VALUES 
-(1, 'to the moon'),
-(1, '2nd portfolio'),
-(2, 'gustavs portfolio'),
-(3, 'filips portfolio'),
-(4, 'andrews portfolio');
+(1, 'to the moon', null),
+(1, '2nd portfolio', null),
+(2, 'gustavs portfolio', null),
+(3, 'filips portfolio', null),
+(4, 'andrews portfolio', null);
 
 UPDATE portfolios SET game_id=1 WHERE portfolio_id=1;
 UPDATE portfolios SET game_id=2 WHERE portfolio_id=2;
@@ -67,9 +67,9 @@ where portfolio_id=2;
 
 
 INSERT INTO games
-(user_id, start_date, end_date)
+(user_id, game_name, start_date, end_date)
 values 
-(1, now() at time zone 'utc', (now() + interval '1 month') at time zone 'utc');
+(1, 'first game', now() at time zone 'utc', (now() + interval '1 month') at time zone 'utc');
 
 
 INSERT INTO users_games(user_id, game_id)
