@@ -95,9 +95,6 @@ app.use(asyncHandler( async(req, res, next) => {
     }
 }));
 
-app.use("/portfolio", portfolio);
-app.use("/game", game);
-
 function requireAuth(req, res, next) {
     console.log('requireAuth');
     if (req.user) {
@@ -110,6 +107,8 @@ function requireAuth(req, res, next) {
 
 app.use(requireAuth); // user will need to be logged in to access any route under this line 
 
+app.use("/portfolio", portfolio);
+app.use("/game", game);
 
 app.get("/", (req, res) => {
     // let user = req.user;
