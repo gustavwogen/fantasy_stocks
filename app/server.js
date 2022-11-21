@@ -56,90 +56,45 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(upload.array()); 
 
-app.use((req, res, next) => {
-    // Get auth token from the cookies
-    const authToken = req.cookies['AuthToken'];
-
-    // Inject the user to the request
-    var authTokens = req.app.get('authTokens');
-    req.user = authTokens[authToken];
-    res.locals.user = req.user;
-    // if (req.user) {
-    //     console.log("user", req.user);
-    //     console.log("MyPortfolio", req.user.portfolios);
-    //     console.log("MyGames", req.user.games);
-    // }
-
-    // for testing
-//     req.user = {
-//         username: 'admin',
-//         user_id: 1,
-//         portfolios: {
-//           '1': {
-//             portfolio_id: 1,
-//             user_id: 1,
-//             name: 'to the moon',
-//             cash: '63219.29',
-//             created_at: "2022-11-13T04:19:18.119Z"
-//           },
-//           '2': {
-//             portfolio_id: 2,
-//             user_id: 1,
-//             name: '2nd portfolio',
-//             cash: '100000',
-//             created_at: "2022-11-13T04:19:18.119Z"
-//           }
-//         },
-//         games: {
-//             '1': {
-//                 game_id: 1,
-//                 name: "First Game"
-//             },
-//             '2': {
-//                 game_id: 2,
-//                 name: "Sedcond Game"
-//             }
-//         } 
-//       }
-    // for testing
-    res.locals.user = {
-        username: 'admin',
-        user_id: 1,
-        portfolios: {
-          '1': {
-            portfolio_id: 1,
-            user_id: 1,
-            name: 'to the moon',
-            cash: '63219.29',
-            created_at: "2022-11-13T04:19:18.119Z"
-          },
-          '2': {
-            portfolio_id: 2,
-            user_id: 1,
-            name: '2nd portfolio',
-            cash: '100000',
-            created_at: "2022-11-13T04:19:18.119Z"
-          }
-        },
-        games: {
-            '1': {
-                game_id: 1,
-                name: "First Game"
-            },
-            '2': {
-                game_id: 2,
-                name: "Second Game"
-            }
-        }
-      }
-    next();
-});
-
 
 app.use(express.json());
 app.use(express.static('public'));
 
 app.use("/user", user);
+
+app.use(asyncHandler( async(req, res, next) => {
+    // Get auth token from the cookies
+    const authToken = req.cookies['AuthToken'];
+
+    // Inject the user to the request
+    var authTokens = req.app.get('authTokens');
+    let user_obj = authTokens[authToken];
+    if (!user_obj) {
+        console.log('user object is null');
+        next();
+    } else {
+        let portfolios = await db.getPortfolios(pool, user_obj['user_id']);
+        if (portfolios.length > 0) {
+            portfolios = portfolios.reduce((obj, item) => (obj[item.portfolio_id] = item, obj) ,{});
+        } else {
+            portfolios = null;
+        }
+        let games = await db.getGames(pool, user_obj['user_id']);
+        if (games.length > 0) {
+            games = games.reduce((obj, item) => (obj[item.game_id] = item, obj) ,{});
+        } else {
+            games = null;
+        }
+
+        user_obj.portfolios = portfolios;
+        user_obj.games = games;
+
+        req.user = user_obj;
+        res.locals.user = user_obj;
+        next();
+    }
+}));
+
 app.use("/portfolio", portfolio);
 app.use("/game", game);
 
@@ -157,7 +112,8 @@ app.use(requireAuth); // user will need to be logged in to access any route unde
 
 
 app.get("/", (req, res) => {
-    let user = req.user;
+    // let user = req.user;
+    // console.log(user);
     // we can access the username of the currently logged in user this way
     // lets us query data from the database
     // console.log(res.locals.user);
