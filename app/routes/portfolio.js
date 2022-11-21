@@ -21,16 +21,18 @@ router.use(cookieParser());
 router.get("/", (req, res) => {
     portfolioId = req.query.portfolioId;
     pool.query(
-        `SELECT 
-         symbol,
-         sum(CASE WHEN order_type = 'BUY' THEN quantity*unit_price ELSE 0 END) AS BuyAmount,
-         sum(CASE WHEN order_type = 'SELL' THEN quantity*unit_price ELSE 0 END) AS SellAmount,
-         sum((case when order_type = 'BUY' then 1 else -1 end) * quantity * unit_price) as total,
-         sum((case when order_type = 'BUY' then 1 else -1 end) * quantity) as quantity
-         FROM orders
-         WHERE portfolio_id=$1
-         GROUP BY symbol, portfolio_id
-         ORDER BY symbol;`, [portfolioId]
+        `SELECT * FROM
+            (SELECT 
+            symbol,
+            sum(CASE WHEN o.order_type = 'BUY' THEN o.quantity*o.unit_price ELSE 0 END) AS BuyAmount,
+            sum(CASE WHEN o.order_type = 'SELL' THEN o.quantity*o.unit_price ELSE 0 END) AS SellAmount,
+            sum((CASE WHEN o.order_type = 'BUY' THEN 1 ELSE -1 END) * o.quantity * o.unit_price) as total,
+            sum((CASE WHEN o.order_type = 'BUY' THEN 1 ELSE -1 END) * o.quantity) as quantity
+            FROM orders o JOIN portfolios p ON p.portfolio_id=o.portfolio_id
+            WHERE o.portfolio_id=1
+            GROUP BY symbol, o.portfolio_id
+            ORDER BY symbol) e
+        WHERE quantity>0;`, [portfolioId]
     ).then(result => {
         return res.json({"rows": result.rows});
     });
