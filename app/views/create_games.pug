@@ -6,15 +6,18 @@ block content
     .text-center
       form(class="form-signin", action='/game/create' method='POST')
         h2 Create a new Game
-            .col-xs-2 
-                input#name(type="text", name="name", class="form-control", placeholder="Name" required autofocus)
-                input#cash(type="text", name="cash", class="form-control", placeholder="Starting Cash" required autofocus)
-                input#users(type="text", name="users[]", class="form-control", placeholder="User Name" required autofocus)
-                ul#fieldList
-                br
-                button#addMore(class="btn btn-lg btn-primary btn-block") Add more users
-                br
-                button#createGame(type='submit', class="btn btn-lg btn-primary btn-block") Create Game
+        div
+          div(class="container")
+            input#name(type="text", name="name", class="form-control", placeholder="Name" required autofocus)
+            input#cash(type="text", name="cash", class="form-control", placeholder="Starting Cash" required autofocus)
+            input#date(name="date", placeholder="Enter End Date", class="form-control", type="text", onfocus="(this.type = 'date')")
+            input#users(type="text", name="users[]", class="form-control", placeholder="User Name" required autofocus)
+            ul#fieldList
+            br
+            button#addMore(class="btn btn-outline-secondary") Add more users
+            br
+            br
+            button#createGame(type='submit', class="btn btn-outline-primary") Create Game
         style.
             ul {
             padding: 0;
@@ -22,6 +25,9 @@ block content
             }
             ul li {
             list-style: none;
+            }
+            .container {
+              width: 350px;
             }
 
     script(src="/scripts/games.js") 

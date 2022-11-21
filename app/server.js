@@ -95,6 +95,7 @@ app.use(asyncHandler( async(req, res, next) => {
     }
 }));
 
+
 function requireAuth(req, res, next) {
     console.log('requireAuth');
     if (req.user) {
