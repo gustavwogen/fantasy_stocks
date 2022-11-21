@@ -230,6 +230,7 @@ app.get("/placeOrder", asyncHandler(async (req, res) => {
     let run = false;
 
     let quantityResponse = await db.getQuantity(pool, portfolioId, ticker);
+    console.log();
     let totalQuantity = Number(quantityResponse[0].quantity);
 
     console.log(`${totalValue} < ${currentCash}`);

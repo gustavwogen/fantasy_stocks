@@ -34,7 +34,7 @@ block content
                 select#exampleFormControlSelect1.form-control
                   if user.portfolios
                     each portfolio, portfolio_id in user.portfolios
-                      option(value=`/portfolio/${portfolio_id}`) #{portfolio.name}
+                      option(value=`${portfolio_id}`) #{portfolio.name}
                 br
                 label(for="quantityBuy") Quantity
                 input#quantityBuy(type="number" class="form-control" name="quantityBuy" value="0" min="1" oninput="calculateTotalBuy()" required)
@@ -54,10 +54,10 @@ block content
             div(class="modal-body")
               div(class="form-group")
                 label(for="portfolioSell") Portfolio
-                select#exampleFormControlSelect1.form-control
+                select#exampleFormControlSelect2.form-control
                   if user.portfolios
                     each portfolio, portfolio_id in user.portfolios
-                      option(value=`/portfolio/${portfolio_id}`) #{portfolio.name}
+                      option(value=`${portfolio_id}`) #{portfolio.name}
                 br
                 label(for="quantitySell") Quantity
                 input#quantitySell(type="number" class="form-control" name="quantitySell" value="0" min="1" oninput="calculateTotalSell()" required)
@@ -82,7 +82,8 @@ block content
       let unitPrice = document.getElementById('latestPrice')
       document.getElementById('totalPriceSell').textContent = `Total: ${(Math.round(quantity * #{latestPrice} * 100) / 100).toFixed(2)}`;
     } 
-            
+    
+
 
     
 
