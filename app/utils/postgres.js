@@ -49,6 +49,17 @@ const getQuantity = async (pool, portfolioId, ticker)=> {
     }
 }
 
+// const removeEmptyStock = async (pool, portfolioId, ticker) {
+//     try {
+//         const result = await pool.query(`
+
+//         `, [])
+//         return result.rows;
+//     } catch (error) {
+//         return error;
+//     }
+// }
+
 const getPortfolioHoldings = async (pool, portfolioId) => {
     try {
         const result = await pool.query(
