@@ -5,3 +5,5 @@ $(function() {
       $("#fieldList").append("<li><input type='text' name='users[]' placeholder='User Name' class='form-control' required autofocus/></li>");
     });
   });
+
+date.min = new Date().toISOString().split("T")[0];

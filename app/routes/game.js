@@ -36,10 +36,11 @@ router.post("/create", asyncHandler(async (req, res) => {
     let gameName = req.body.name;
     let cash = Number(req.body.cash);
     let userList = req.body.users;
+    let endDate = req.body.date;
 
     //First create game from input, then use that game-ID to create a portfolio and link the game-ID with the user-ID of creator
     //Then loop through the list of all users that should be in the game and do the same
-    await db.createGame(pool, userId, gameName, cash);
+    await db.createGame(pool, userId, gameName, cash, endDate);
     gameIdResponse = await db.getGameId(pool, gameName);
     gameId = gameIdResponse[0].game_id;
     await db.createPortfolio(pool, userId, gameName + " " + req.user.username, cash, gameId);
@@ -59,7 +60,7 @@ router.use("/:gameId", auth.game);
 
 router.get("/:gameId", asyncHandler(async (req, res) => {
     let gameId = req.params.gameId;
-    console.log(req.user);
+    //console.log(req.user);
     
     let portfolios = await db.getGamePortfolios(pool, gameId);
     let portfolioIds = portfolios.map(row => Number(row.portfolio_id));
@@ -70,8 +71,8 @@ router.get("/:gameId", asyncHandler(async (req, res) => {
     gameName = await db.getGameName(pool, gameId);
     holdings = await db.getOriginalValues(pool, portfolioIds);
 
-    console.log(holdings);
-    console.log(portfolios);
+    //console.log(holdings);
+    //console.log(portfolios);
 
     res.render('game', {
         cash: cashList,

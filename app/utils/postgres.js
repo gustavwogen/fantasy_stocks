@@ -153,10 +153,10 @@ const createPortfolio = async (pool, userId, name, cash, gameId)=> {
     }
 }
 
-const createGame = async (pool, userId, gameName, cash) => {
+const createGame = async (pool, userId, gameName, cash, endDate) => {
     try {
-        const result = await pool.query("INSERT INTO games (user_id, game_name, start_cash, start_date, end_date) VALUES ($1, $2, $3, now() at time zone 'utc', (now() + interval '1 month') at time zone 'utc')",
-        [userId, gameName, cash])    
+        const result = await pool.query("INSERT INTO games (user_id, game_name, start_cash, start_date, end_date) VALUES ($1, $2, $3, now() at time zone 'utc', $4)",
+        [userId, gameName, cash, endDate])    
         return result.rows;
     } catch (error) {
         return error;
