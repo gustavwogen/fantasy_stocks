@@ -11,6 +11,7 @@ require('express-async-errors');
 let pool = require('../utils/dbConn');
 let db = require('../utils/postgres');
 let iex = require('../utils/iex');
+let auth = require('../utils/authorization');
 
 router.use(bodyParser.urlencoded({ extended: true }));
 router.use(upload.array()); 
@@ -45,6 +46,7 @@ router.get('/create', function (req, res) {
 
 router.post("/create", (req, res) => {
     let userID = req.user.user_id;
+    console.log(userID);
     let name = req.body.name;
     let cash = req.body.cash;
     console.log(req.user.user_id);
@@ -64,40 +66,51 @@ router.post("/create", (req, res) => {
         });
 });
 
+router.use("/:portfolioId", auth.portfolio);
 
 router.get("/:portfolioId", asyncHandler(async (req, res) => {
     let portfolioId = req.params.portfolioId;
     var portfolioCash = await db.getCash(pool, portfolioId);
-
     var holdings = await db.getPortfolioHoldings(pool, portfolioId);
-    let tickerList = holdings.map(row => row.symbol);
 
-    var quotes = await iex.getQuotes(tickerList.join());
-    quotes = quotes.data;
+    if (holdings.length === 0) {
+        return res.render('portfolio', {
+            holdings: [],
+            cash: portfolioCash[0].cash
+        });
+    } else {
+        let tickerList = holdings.map(row => row.symbol);
+        var quotes = await iex.getQuotes(tickerList.join());
+        quotes = quotes.data;
 
-    // transform holdings array into an object
-    var holdings_object = holdings.reduce((obj, item) => (obj[item.symbol] = item, obj) ,{});
+        // transform holdings array into an object
+        var holdings_object = holdings.reduce((obj, item) => (obj[item.symbol] = item, obj) ,{});
 
-    // for each symbol calculate the current value in the portfolio
-    Object.keys(quotes).forEach(key => {
-        holdings_object[key].current_value = parseInt(holdings_object[key].quantity) * quotes[key].quote.latestPrice
-    });
-    
-    var holdings = Object.values(holdings_object);
+        // for each symbol calculate the current value in the portfolio
+        Object.keys(quotes).forEach(key => {
+            holdings_object[key].current_value = parseInt(holdings_object[key].quantity) * quotes[key].quote.latestPrice
+        });
+        
+        var holdings = Object.values(holdings_object);
+        // // get the total value of all the stocks in the portfolio
+        var portfolioStockValue = holdings.reduce((a, row) => a + parseFloat(row.current_value), 0);
+        var originalValue = holdings.reduce((a, row) => a + parseFloat(row.total), 0);
+        
+        // Calculate the total yield of the portfolio
+        var totalYield = parseFloat((portfolioStockValue/originalValue) - 1)
 
-    // // get the total value of all the stocks in the portfolio
-    var portfolioStockValue = holdings.reduce((a, row) => a + parseFloat(row.current_value), 0);
+        holdings.forEach((row) => {
+            quotes[row.symbol]['portfolio'] = row
+        });
 
-    holdings.forEach((row) => {
-        quotes[row.symbol]['portfolio'] = row
-    });
-
-    console.log(quotes);
-    res.render('portfolio', {
-        holdings: Object.values(quotes),
-        cash: portfolioCash[0].cash,
-        totalPortfolioValue: parseFloat(portfolioCash[0].cash) + parseFloat(portfolioStockValue)
-    });
+        //console.log(quotes);
+        res.render('portfolio', {
+            holdings: Object.values(quotes),
+            cash: portfolioCash[0].cash,
+            totalPortfolioValue: parseFloat(portfolioCash[0].cash) + parseFloat(portfolioStockValue),
+            totalYield: totalYield
+        });
+    }
 }));
 
 

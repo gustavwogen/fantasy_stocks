@@ -3,22 +3,18 @@ extends base_layout
 block scripts 
 
 block content
-    div(class="row h-100 justify-content-center align-items-center")
+    .text-center
+      form(class="form-signin", action='/game/create' method='POST')
         h2 Create a new Game
-    div(class="row h-100 justify-content-center align-items-center")
-        form(action='/game/create' method='post')
-            ul#fieldList
-                li
-                input(name='name' type='text' placeholder='Name')
-                li
-                input(name='cash' type='number' placeholder='Starting Cash')
-                li
-                input(name='users[]' type='text' placeholder='User Name')
-            br
-            button#addMore Add more users
-            br
-            br
-            button#createGame(type='submit') Create Game
+            .col-xs-2 
+                input#name(type="text", name="name", class="form-control", placeholder="Name" required autofocus)
+                input#cash(type="text", name="cash", class="form-control", placeholder="Starting Cash" required autofocus)
+                input#users(type="text", name="users[]", class="form-control", placeholder="User Name" required autofocus)
+                ul#fieldList
+                br
+                button#addMore(class="btn btn-lg btn-primary btn-block") Add more users
+                br
+                button#createGame(type='submit', class="btn btn-lg btn-primary btn-block") Create Game
         style.
             ul {
             padding: 0;
