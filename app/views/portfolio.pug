@@ -5,9 +5,9 @@ block scripts
 block content
 
   if holdings.length > 0
-    div(class="container")      
+    div(class="container")
       h2#total-value= `Total value: ${totalPortfolioValue}`
-      h2#total-yield(class=totalYield >= 0 ? "text-success" : "text-danger")= `Total Return: ${(totalYield * 100).toFixed(2)}%`
+      h2(class="d-inline") Total Return: #[h2#total-yield(class=totalYield >= 0 ? "text-success d-inline" : "text-danger d-inline")= `${(totalYield * 100).toFixed(2)}%`]
       h4#cash= `Available cash: ${cash}`
       br
       div(class="table-responsive")

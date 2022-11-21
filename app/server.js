@@ -101,37 +101,37 @@ app.use((req, res, next) => {
 //             }
 //         } 
 //       }
-//     // for testing
-//     res.locals.user = {
-//         username: 'admin',
-//         user_id: 1,
-//         portfolios: {
-//           '1': {
-//             portfolio_id: 1,
-//             user_id: 1,
-//             name: 'to the moon',
-//             cash: '63219.29',
-//             created_at: "2022-11-13T04:19:18.119Z"
-//           },
-//           '2': {
-//             portfolio_id: 2,
-//             user_id: 1,
-//             name: '2nd portfolio',
-//             cash: '100000',
-//             created_at: "2022-11-13T04:19:18.119Z"
-//           }
-//         },
-//         games: {
-//             '1': {
-//                 game_id: 1,
-//                 name: "First Game"
-//             },
-//             '2': {
-//                 game_id: 2,
-//                 name: "Second Game"
-//             }
-//         }
-//       }
+    // for testing
+    res.locals.user = {
+        username: 'admin',
+        user_id: 1,
+        portfolios: {
+          '1': {
+            portfolio_id: 1,
+            user_id: 1,
+            name: 'to the moon',
+            cash: '63219.29',
+            created_at: "2022-11-13T04:19:18.119Z"
+          },
+          '2': {
+            portfolio_id: 2,
+            user_id: 1,
+            name: '2nd portfolio',
+            cash: '100000',
+            created_at: "2022-11-13T04:19:18.119Z"
+          }
+        },
+        games: {
+            '1': {
+                game_id: 1,
+                name: "First Game"
+            },
+            '2': {
+                game_id: 2,
+                name: "Second Game"
+            }
+        }
+      }
     next();
 });
 

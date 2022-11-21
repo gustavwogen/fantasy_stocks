@@ -67,7 +67,6 @@ router.post("/create", (req, res) => {
 router.get("/:portfolioId", asyncHandler(async (req, res) => {
     let portfolioId = req.params.portfolioId;
     var portfolioCash = await db.getCash(pool, portfolioId);
-    console.log(portfolioId, portfolioCash);
     var holdings = await db.getPortfolioHoldings(pool, portfolioId);
 
     if (holdings.length === 0) {
