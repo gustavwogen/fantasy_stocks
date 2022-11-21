@@ -17,6 +17,20 @@ const getGames = async (pool, gameId)=> {
     }
 }
 
+const getUserGames = async (pool, userId)=> {
+    try {
+        const result = await pool.query(
+            `select g.*
+             from users_games ug
+             join games g on g.game_id = ug.game_id
+             where ug.user_id = $1;`,
+            [userId])
+        return result.rows;
+    } catch (error) {
+        return error;
+    }
+}
+
 const getUserId = async (pool, name)=> {
     try {
         const result = await pool.query('SELECT user_id from users where username = $1', [name])
@@ -176,6 +190,7 @@ const linkGame = async (pool, userId, gameId) => {
 module.exports = {
     getPortfolios,
     getGames,
+    getUserGames,
     getUserId,
     getGameId,
     getPortfolioHoldings,
