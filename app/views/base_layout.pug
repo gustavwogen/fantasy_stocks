@@ -36,7 +36,7 @@ html(lang="en")
             div(class="dropdown-menu" aria-labelledby="navbarDropdown")
               if user.games
                 each game, game_id in user.games
-                  a(class="dropdown-item" href=`/game/${game_id}`)= game.name
+                  a(class="dropdown-item" href=`/game/${game_id}`)= game.game_name
                 div(class="dropdown-divider")
                 a(class="dropdown-item" href="/game/create") Create new game
               else 

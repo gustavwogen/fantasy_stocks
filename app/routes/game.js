@@ -11,6 +11,7 @@ require('express-async-errors');
 let pool = require('../utils/dbConn');
 let db = require('../utils/postgres');
 let iex = require('../utils/iex');
+let auth = require('../utils/authorization');
 
 router.use(bodyParser.urlencoded({ extended: true }));
 router.use(upload.array()); 
@@ -54,9 +55,11 @@ router.post("/create", asyncHandler(async (req, res) => {
     return res.redirect('/game/create');
 }));
 
+router.use("/:gameId", auth.game);
 
 router.get("/:gameId", asyncHandler(async (req, res) => {
     let gameId = req.params.gameId;
+    console.log(req.user);
     
     let portfolios = await db.getGamePortfolios(pool, gameId);
     let portfolioIds = portfolios.map(row => Number(row.portfolio_id));
@@ -68,6 +71,7 @@ router.get("/:gameId", asyncHandler(async (req, res) => {
     holdings = await db.getOriginalValues(pool, portfolioIds);
 
     console.log(holdings);
+    console.log(portfolios);
 
     res.render('game', {
         cash: cashList,
