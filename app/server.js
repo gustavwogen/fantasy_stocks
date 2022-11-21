@@ -77,12 +77,14 @@ app.use(asyncHandler( async(req, res, next) => {
         let portfolios = await db.getPortfolios(pool, user_obj['user_id']);
         if (portfolios.length > 0) {
             portfolios = portfolios.reduce((obj, item) => (obj[item.portfolio_id] = item, obj) ,{});
+        } else {
+            portfolios = null;
         }
         let games = await db.getGames(pool, user_obj['user_id']);
         if (games.length > 0) {
             games = games.reduce((obj, item) => (obj[item.game_id] = item, obj) ,{});
         } else {
-            games = {};
+            games = null;
         }
 
         user_obj.portfolios = portfolios;
