@@ -69,7 +69,6 @@ app.use(asyncHandler( async(req, res, next) => {
     // Inject the user to the request
     var authTokens = req.app.get('authTokens');
     let user_obj = authTokens[authToken];
-    console.log(user_obj);
     if (!user_obj) {
         console.log('user object is null');
         next();
@@ -101,7 +100,6 @@ app.use("/game", game);
 
 function requireAuth(req, res, next) {
     console.log('requireAuth');
-    console.log(req.user);
     if (req.user) {
         next();
     } else {
