@@ -18,7 +18,7 @@ VALUES
 (4, 'andrews portfolio', null);
 
 UPDATE portfolios SET game_id=1 WHERE portfolio_id=1;
-UPDATE portfolios SET game_id=2 WHERE portfolio_id=2;
+-- UPDATE portfolios SET game_id=2 WHERE portfolio_id=2;
 
 -- Portfolio "to the moon"
 INSERT INTO orders 

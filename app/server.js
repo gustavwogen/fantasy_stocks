@@ -95,9 +95,6 @@ app.use(asyncHandler( async(req, res, next) => {
     }
 }));
 
-app.use("/portfolio", portfolio);
-app.use("/game", game);
-
 function requireAuth(req, res, next) {
     console.log('requireAuth');
     if (req.user) {
@@ -110,15 +107,11 @@ function requireAuth(req, res, next) {
 
 app.use(requireAuth); // user will need to be logged in to access any route under this line 
 
+app.use("/portfolio", portfolio);
+app.use("/game", game);
 
 app.get("/", (req, res) => {
-    // let user = req.user;
-    // console.log(user);
-    // we can access the username of the currently logged in user this way
-    // lets us query data from the database
-    // console.log(res.locals.user);
     res.render('index');
-    // res.sendFile('public/index.html', {root: __dirname})
 })
 
 app.get("/search", asyncHandler(async (req, res) => {

@@ -11,6 +11,7 @@ require('express-async-errors');
 let pool = require('../utils/dbConn');
 let db = require('../utils/postgres');
 let iex = require('../utils/iex');
+let auth = require('../utils/authorization');
 
 router.use(bodyParser.urlencoded({ extended: true }));
 router.use(upload.array()); 
@@ -63,6 +64,7 @@ router.post("/create", (req, res) => {
         });
 });
 
+router.use("/:portfolioId", auth.portfolio);
 
 router.get("/:portfolioId", asyncHandler(async (req, res) => {
     let portfolioId = req.params.portfolioId;
@@ -88,7 +90,6 @@ router.get("/:portfolioId", asyncHandler(async (req, res) => {
         });
         
         var holdings = Object.values(holdings_object);
-        console.log(holdings.total)
         // // get the total value of all the stocks in the portfolio
         var portfolioStockValue = holdings.reduce((a, row) => a + parseFloat(row.current_value), 0);
         var originalValue = holdings.reduce((a, row) => a + parseFloat(row.total), 0);
