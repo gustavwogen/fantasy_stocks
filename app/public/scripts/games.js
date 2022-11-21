@@ -5,4 +5,3 @@ $(function() {
       $("#fieldList").append("<li><input type='text' name='users[]' placeholder='User Name' class='form-control' required autofocus/></li>");
     });
   });
-

@@ -67,12 +67,9 @@ router.get("/:gameId", asyncHandler(async (req, res) => {
     gameName = await db.getGameName(pool, gameId);
     holdings = await db.getOriginalValues(pool, portfolioIds);
 
-
     console.log(holdings);
 
-
     res.render('game', {
-        user: allUserIds,
         cash: cashList,
         portfolios: portfolios,
         holdings: holdings,

@@ -16,7 +16,7 @@ block content
               th(scope="col") User
               th(scope="col") Portfolio Name
               th(scope="col") Cash
-              th(scope="col") Total Portfolio Value
+              //th(scope="col") Total Portfolio Value
           tbody
             each row, index in portfolios
               tr(id=`${row.user_id}`)
@@ -24,7 +24,7 @@ block content
                 td= row.user_id
                 td= row.name
                 td= `$${Number.parseFloat(row.cash).toFixed(2)}`
-                td= `$${(Number.parseFloat(holdings[index].total) + Number.parseFloat(row.cash)).toFixed(2)}`
+                //td= `$${(Number.parseFloat(holdings[index].total) + Number.parseFloat(row.cash)).toFixed(2)}`
       br
   else 
     div(class="container")
