@@ -28,7 +28,7 @@ router.get("/", (req, res) => {
 })
 
 router.get('/create', function (req, res) {
-    res.render('create_games');
+    res.render('game/create_game');
 });
 
 router.post("/create", asyncHandler(async (req, res) => {
@@ -74,7 +74,7 @@ router.get("/:gameId", asyncHandler(async (req, res) => {
     //console.log(holdings);
     //console.log(portfolios);
 
-    res.render('game', {
+    res.render('game/view_game', {
         cash: cashList,
         portfolios: portfolios,
         holdings: holdings,
