@@ -197,9 +197,6 @@ app.get("/placeOrder", asyncHandler(async (req, res) => {
         run = true;
     } else if ((orderType === 'SELL') && (quantity <= totalQuantity)) {
         db.sellOrderCash(pool, totalValue, portfolioId);
-        if(totalQuantity-quantity===0){
-            await db.removeEmptyStock(pool, portfolioId, ticker);
-        }
         run = true
     } else if ((orderType === 'BUY') && (currentCash < totalValue)) {
         console.log("Not enough cash");

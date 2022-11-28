@@ -60,26 +60,59 @@ router.use("/:gameId", auth.game);
 
 router.get("/:gameId", asyncHandler(async (req, res) => {
     let gameId = req.params.gameId;
-    //console.log(req.user);
     
     let portfolios = await db.getGamePortfolios(pool, gameId);
     let portfolioIds = portfolios.map(row => Number(row.portfolio_id));
     let cashList = portfolios.map(row => row.cash);
-    let names = portfolios.map(row => row.name);
-    let allUserIds = portfolios.map(row => row.user_id);
   
-    gameName = await db.getGameName(pool, gameId);
-    holdings = await db.getOriginalValues(pool, portfolioIds);
+    gameName = await db.getGameName(pool, gameId);  
+    //console.log("Portfolio IDs", portfolioIds);
 
-    //console.log(holdings);
-    //console.log(portfolios);
+    for (i in portfolioIds) {
+        holdings = await db.getPortfolioHoldings(pool, portfolioIds[i]);
+
+        if (holdings.length === 0) {
+            res.render('game', {
+                cash: cashList[0],
+                portfolios: [],
+                gameName: gameName[0].game_name
+            });
+        }
+
+        let tickerList = holdings.map(row => row.symbol);
+        var quotes = await iex.getQuotes(tickerList.join());
+        quotes = quotes.data;
+
+        // transform holdings array into an object
+        var holdings_object = holdings.reduce((obj, item) => (obj[item.symbol] = item, obj) ,{});
+
+        // for each symbol calculate the current value in the portfolio
+        Object.keys(quotes).forEach(key => {
+            holdings_object[key].current_value = parseInt(holdings_object[key].quantity) * quotes[key].quote.latestPrice
+        });
+
+        var holdings = Object.values(holdings_object);
+        // // get the total value of all the stocks in the portfolio
+        var portfolioStockValue = holdings.reduce((a, row) => a + parseFloat(row.current_value), 0);
+        var originalValue = holdings.reduce((a, row) => a + parseFloat(row.total), 0);
+
+        // Calculate the total yield of the portfolio and add to portfolio object
+        portfolios[i]["yield"] = ((portfolioStockValue/originalValue) - 1) * 100;
+        
+        // Add user names of users
+        let userNames = await db.getUserNameFromPortfolio(pool, portfolioIds[i]);
+        portfolios[i]["user_name"] = userNames[0].username;
+    }
+    
+    portfolios.sort(function(a, b){
+        return  b.yield - a.yield;
+    });
 
     res.render('game/view_game', {
         cash: cashList,
         portfolios: portfolios,
-        holdings: holdings,
-        //totalPortfolioValue: parseFloat(cashList[0]) + parseFloat(portfolioStockValue),
-        gameName: gameName[0].game_name
+        portfolioValue: parseFloat(portfolioStockValue),
+        gameName: gameName[0].game_name,
     });
 
 }));

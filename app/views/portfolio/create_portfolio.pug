@@ -5,22 +5,27 @@ block scripts
 block content
     div(class="row h-100 justify-content-center align-items-center")
         h2 Create a new portfolio
-    div(class="row h-100 justify-content-center align-items-center")
-        table
+    div(class="container")
+        table(class="table")
             tr
                 td
                     label(name='name' for='name') Name:
                 td
-                    input#name(type='text')
+                    input#name(type='text', placeholder="Name")
             tr
                 td
                     label(name='cost' for='cost') Starting Cash: 
                 td
-                    input#cost(type='number' step='any')
+                    input#cost(type='number' step='any', placeholder="$100,000")
     p
     div(class="row h-100 justify-content-center align-items-center")
-        button#create Create New Portfolio
+        button#create(type='submit', class="btn btn-outline-primary") Create New Portfolio
         #result &nbsp;
+
+    style.
+        .container {
+              width: 450px;
+            }
 
     script.
         let nameInput = document.getElementById("name");
