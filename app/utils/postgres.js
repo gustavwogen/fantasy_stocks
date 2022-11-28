@@ -31,7 +31,7 @@ const getUserGames = async (pool, userId)=> {
     }
 }
 
-const getUserNames = async (pool, portfolioId)=> {
+const getUserNameFromPortfolio = async (pool, portfolioId)=> {
     try {
         const result = await pool.query(
             `select username from users where user_id = (select user_id from portfolios where portfolio_id = $1);`,
@@ -205,7 +205,7 @@ module.exports = {
     getPortfolios,
     getGames,
     getUserGames,
-    getUserNames,
+    getUserNameFromPortfolio,
     getUserId,
     getGameId,
     getPortfolioHoldings,

@@ -100,7 +100,7 @@ router.get("/:gameId", asyncHandler(async (req, res) => {
         portfolios[i]["yield"] = ((portfolioStockValue/originalValue) - 1) * 100;
         
         // Add user names of users
-        let userNames = await db.getUserNames(pool, portfolioIds[i]);
+        let userNames = await db.getUserNameFromPortfolio(pool, portfolioIds[i]);
         portfolios[i]["user_name"] = userNames[0].username;
     }
     
