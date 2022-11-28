@@ -40,8 +40,7 @@ router.get("/", (req, res) => {
 })
 
 router.get('/create', function (req, res) {
-    //res.sendFile('public/portfolioCreate.html' , { root : process.cwd()});
-    res.render('create_portfolio');
+    res.render('portfolio/create_portfolio');
 });
 
 router.post("/create", (req, res) => {
@@ -74,7 +73,7 @@ router.get("/:portfolioId", asyncHandler(async (req, res) => {
     var holdings = await db.getPortfolioHoldings(pool, portfolioId);
 
     if (holdings.length === 0) {
-        return res.render('portfolio', {
+        return res.render('portfolio/view_portfolio', {
             holdings: [],
             cash: portfolioCash[0].cash
         });
@@ -104,7 +103,7 @@ router.get("/:portfolioId", asyncHandler(async (req, res) => {
         });
 
         //console.log(quotes);
-        res.render('portfolio', {
+        res.render('portfolio/view_portfolio', {
             holdings: Object.values(quotes),
             cash: portfolioCash[0].cash,
             totalPortfolioValue: parseFloat(portfolioCash[0].cash) + parseFloat(portfolioStockValue),

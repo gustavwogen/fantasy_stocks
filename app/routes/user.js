@@ -17,7 +17,7 @@ router.use(cookieParser());
 
 
 router.get("/create", (req, res) => {
-    res.render('create_user');
+    res.render('user/create_user');
 });
 
 // https://github.com/kelektiv/node.bcrypt.js#a-note-on-rounds
@@ -39,7 +39,7 @@ router.post("/create", (req, res) => {
                     // account created
                     console.log(username, "account created");
                     res.status(200);
-                    res.render('create_user', {
+                    res.render('user/create_user', {
                         user_created: true,
                         username: username
                     })
@@ -48,7 +48,7 @@ router.post("/create", (req, res) => {
                     // insert failed
                     if (error.detail === `Key (username)=(${username}) already exists.`) {
                         res.status(401);
-                        res.render('create_user', {
+                        res.render('user/create_user', {
                             username_taken: true,
                             username: username
                         })
@@ -70,7 +70,7 @@ const generateAuthToken = () => {
 }
 
 router.get('/login', (req, res) => {
-    res.render('login');
+    res.render('user/login');
 });
 
 router.post("/login", asyncHandler(async (req, res) => {
@@ -79,7 +79,7 @@ router.post("/login", asyncHandler(async (req, res) => {
     const result = await pool.query("SELECT password FROM users WHERE username = $1", [username])
     if (result.rows.length === 0) {
         res.status(401);
-        res.render('login', {
+        res.render('user/login', {
             error: "Incorrect username or password"
         })
     } else {
@@ -104,7 +104,7 @@ router.post("/login", asyncHandler(async (req, res) => {
         } else {
             console.log('not matched password');
             res.status(401);
-            return res.render('login', {
+            return res.render('user/login', {
                 error: "Incorrect username or password"
             });
         }

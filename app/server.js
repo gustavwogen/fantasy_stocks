@@ -117,16 +117,16 @@ app.get("/", (req, res) => {
 
 app.get("/search", asyncHandler(async (req, res) => {
     if (!req.query.ticker) {
-        res.render("search_bootstrap");
+        res.render("search_stock");
     } else {
         let ticker = req.query.ticker;
         let iexResponse = await iex.getQuotes(ticker);
         if (200 <= iexResponse.status && iexResponse.status <= 299) {
-            res.render("search_bootstrap", iexResponse.data[ticker.toUpperCase()]['quote']);
+            res.render("search_stock", iexResponse.data[ticker.toUpperCase()]['quote']);
         }  else {
             console.log(iexResponse.status);
             res.status(iexResponse.status)
-            res.render('search_bootstrap', {error: iexResponse.data});
+            res.render('search_stock', {error: iexResponse.data});
         }
     }
 }));
