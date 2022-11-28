@@ -30,7 +30,7 @@ router.get("/", (req, res) => {
             sum((CASE WHEN o.order_type = 'BUY' THEN 1 ELSE -1 END) * o.quantity * o.unit_price) as total,
             sum((CASE WHEN o.order_type = 'BUY' THEN 1 ELSE -1 END) * o.quantity) as quantity
             FROM orders o JOIN portfolios p ON p.portfolio_id=o.portfolio_id
-            WHERE o.portfolio_id=1
+            WHERE o.portfolio_id=$1
             GROUP BY symbol, o.portfolio_id
             ORDER BY symbol) e
         WHERE quantity>0;`, [portfolioId]

@@ -9,6 +9,23 @@ block content
       h1#Game-name= `Game: ${gameName}`
       br
       div(class="table-responsive")
+      table(class="table table-bordered table-hover")
+        thead 
+          tr
+            th(scope="col") Position
+            th(scope="col") User
+            th(scope="col") Portfolio Name
+            th(scope="col") Total Return
+            //th(scope="col") Total Portfolio Value
+        tbody
+          each row, index in portfolios
+            tr(id=`${row.user_id}`)
+              td= index + 1
+              td= row.user_name
+              td= row.name
+              td(class=row.yield >= 0 ? "text-success" : "text-danger")= `${Number.parseFloat(row.yield).toFixed(2)}%`
+      br
+      div(class="table-responsive")
         table(class="table table-bordered table-hover")
           thead 
             tr
@@ -21,7 +38,7 @@ block content
             each row, index in portfolios
               tr(id=`${row.user_id}`)
                 td= index + 1
-                td= row.user_id
+                td= row.user_name
                 td= row.name
                 td= `$${Number.parseFloat(row.cash).toFixed(2)}`
                 //td= `$${(Number.parseFloat(holdings[index].total) + Number.parseFloat(row.cash)).toFixed(2)}`
