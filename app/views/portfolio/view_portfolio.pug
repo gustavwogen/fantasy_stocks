@@ -38,20 +38,20 @@ block content
                 td= Number.parseFloat(row.portfolio.quantity * row.quote.latestPrice).toFixed(2)
                 - var stockYield = row.quote.latestPrice / (row.portfolio.total / row.portfolio.quantity) - 1
                 td(class=stockYield >= 0 ? "text-success" : "text-danger")= `${Number.parseFloat(stockYield * 100).toFixed(2)}%`
+    script.
+      let dollarUS = Intl.NumberFormat("en-US", {
+          style: "currency",
+          currency: "USD",
+      });
+
+      let totalValue = document.getElementById('total-value')
+      totalValue.textContent = `Total value: ${dollarUS.format(parseFloat(totalValue.textContent.slice(13)))}`;
+      
+      let cash = document.getElementById('cash');
+      //console.log(cash.textContent.slice(15));
+      cash.textContent = `Available cash: ${dollarUS.format(parseFloat(cash.textContent.slice(15)))}`;
   else 
     div(class="container")
       h4#cash= `Available cash: $${cash}`
+      h2(class="d-inline") Total Return: #[h2#total-yield(class=totalYield >= 0 ? "text-success d-inline" : "text-danger d-inline")= `${(totalYield * 100).toFixed(2)}%`]
       p Portfolio is Empty
-  
-  script.
-    let dollarUS = Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-    });
-
-    let totalValue = document.getElementById('total-value')
-    totalValue.textContent = `Total value: ${dollarUS.format(parseFloat(totalValue.textContent.slice(13)))}`;
-    
-    let cash = document.getElementById('cash');
-    //console.log(cash.textContent.slice(15));
-    cash.textContent = `Available cash: ${dollarUS.format(parseFloat(cash.textContent.slice(15)))}`;
