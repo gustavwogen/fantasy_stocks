@@ -97,7 +97,7 @@ const getPortfolioHoldings = async (pool, portfolioId) => {
             WHERE o.portfolio_id=$1
             GROUP BY symbol, o.portfolio_id
             ORDER BY symbol) e
-        WHERE quantity>0;`, [portfolioId]
+        WHERE quantity>=0;`, [portfolioId]
         )
         return result.rows;
     } catch (error) {
