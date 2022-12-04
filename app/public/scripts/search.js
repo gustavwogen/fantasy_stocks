@@ -14,16 +14,21 @@ if (buyButton) {
             if (response.ok) {
                 response.json().then((data) => {
                     console.log(data);
-                    let div = document.getElementById('successfulOrder');
+                    let divSuccess = document.getElementById('successfulOrder');
+                    let divError = document.getElementById('failedOrder');
                     if (data === "Not enough cash") {
-                        div.textContent = "Error: Not enough cash to complete transactions";
-                        //div.color = "red";
+                        divError.textContent = "Error: Not enough cash to complete transactions";
+                        divError.style.display = 'block'; 
+                    } else if (data === "Game Finished") {
+                        divError.textContent = "Error: Game is finished";
+                        divError.style.display = 'block'; 
                     } else if (quantity > 0) {
-                        div.textContent = `You successfully purchased ${quantity} shares of ${symbol}`;
+                        divSuccess.textContent = `You successfully purchased ${quantity} shares of ${symbol}`;
+                        divSuccess.style.display = 'block'; 
                     } else {
-                        div.textContent = `You successfully purchased ${quantity} share of ${symbol}`;
+                        divSuccess.textContent = `You successfully purchased ${quantity} share of ${symbol}`;
+                        divSuccess.style.display = 'block'; 
                     }
-                    div.style.display = 'block';    
                 })
             }
         })
@@ -42,16 +47,22 @@ if (sellButton) {
         fetch(`/placeOrder?${query}`).then((response) => {
             if (response.ok) {
                 response.json().then((data) => {
-                    let div = document.getElementById('successfulOrder');
+                    let divSuccess = document.getElementById('successfulOrder');
+                    let divError = document.getElementById('failedOrder');
                     console.log(data);
                     if (data === "Do not own required quantity") {
-                        div.textContent = "Do not own required quantity"
+                        divError.textContent = "Error: Do not own required quantity"
+                        divError.style.display = 'block';  
+                    } else if (data === "Game Finished") {
+                        divError.textContent = "Error: Game is finished";
+                        divError.style.display = 'block';  
                     } else if (quantity > 0) {
-                        div.textContent = `You successfully sold ${quantity} shares of ${symbol}`;
+                        divSuccess.textContent = `You successfully sold ${quantity} shares of ${symbol}`;
+                        divSuccess.style.display = 'block';
                     } else {
-                        div.textContent = `You successfully sold ${quantity} share of ${symbol}`;
+                        divSuccess.textContent = `You successfully sold ${quantity} share of ${symbol}`;
+                        divSuccess.style.display = 'block';
                     }
-                    div.style.display = 'block';    
                 })
             }
         })

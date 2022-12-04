@@ -189,9 +189,6 @@ app.get("/placeOrder", asyncHandler(async (req, res) => {
         totalQuantity = Number(quantityResponse[0].quantity);
     }
 
-    console.log(`${totalValue} < ${currentCash}`);
-    console.log(`${quantity} < ${totalQuantity}`);
-
     if ((orderType === 'BUY') && (currentCash >= totalValue)) {
         db.buyOrderCash(pool, totalValue, portfolioId);
         run = true;
@@ -205,6 +202,14 @@ app.get("/placeOrder", asyncHandler(async (req, res) => {
         console.log("Do not own required quantity");
         return res.json("Do not own required quantity");
     } 
+
+    let gameTimeObject = await db.getPortfolioEndDate(pool, portfolioId);
+    let gameTime = gameTimeObject[0].end_date
+    var today = new Date();
+    if (today > gameTime) {
+        run = false
+        return res.json("Game Finished")
+    }
 
     if (run) {
         console.log(ticker, orderType, quantity, portfolioId, price);
