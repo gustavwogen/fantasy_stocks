@@ -8,6 +8,11 @@ block content
     div(class="container")
       h1#Game-name= `Game: ${gameName}`
       br
+      if endGame
+        h2(style="color:Dodgerblue;") The game is over. The winner of the game is #{portfolios[0].user_name}! Congratulations!
+      else
+        h3(style="color:Dodgerblue;") This game ends on #{gameTime}
+      br
       div(class="table-responsive")
       table(class="table table-bordered table-hover")
         thead 
@@ -45,7 +50,8 @@ block content
       br
   else 
     div(class="container")
-      h4#cash= `Available cash: $${cash}`
+      h3#cash= `Available cash: $${cash}`
+      h3(style="color:Dodgerblue;") This game ends on #{gameTime}
       p Portfolio for this game is Empty
   
   script.

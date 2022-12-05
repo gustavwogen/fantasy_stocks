@@ -2,6 +2,14 @@ extends base_layout
 
 block content
 
-    div(class="container")
-        h1 Welcome #{user.username}
-        h2= user.user_id
+  div(class="container")
+    h1 Welcome to Fantasy Stocks #{user.username}!
+      p 
+      p
+      h3 Your portfolios 
+      if user.portfolios
+        each portfolio, count in user.portfolios
+          p 
+          li #{portfolio.name}
+      else 
+        li No portfolios created yet

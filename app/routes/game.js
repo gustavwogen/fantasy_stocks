@@ -60,22 +60,35 @@ router.use("/:gameId", auth.game);
 
 router.get("/:gameId", asyncHandler(async (req, res) => {
     let gameId = req.params.gameId;
-    
     let portfolios = await db.getGamePortfolios(pool, gameId);
     let portfolioIds = portfolios.map(row => Number(row.portfolio_id));
     let cashList = portfolios.map(row => row.cash);
-  
+    let endGame = false;
+
     gameName = await db.getGameName(pool, gameId);  
     //console.log("Portfolio IDs", portfolioIds);
+
+    let gameTimeObject = await db.getGameEndDate(pool, gameId);
+    let gameTime = gameTimeObject[0].end_date
+    var today = new Date();
+
+    if (today > gameTime) {
+        endGame = true;
+    } else {
+        gameTime = gameTime.toLocaleDateString("en-US")
+    }
+    console.log(gameTime);
 
     for (i in portfolioIds) {
         holdings = await db.getPortfolioHoldings(pool, portfolioIds[i]);
 
         if (holdings.length === 0) {
-            res.render('game', {
+            res.render('game/view_game', {
                 cash: cashList[0],
                 portfolios: [],
-                gameName: gameName[0].game_name
+                gameName: gameName[0].game_name,
+                gameTime: gameTime,
+                endGame: endGame
             });
         }
 
@@ -113,6 +126,8 @@ router.get("/:gameId", asyncHandler(async (req, res) => {
         portfolios: portfolios,
         portfolioValue: parseFloat(portfolioStockValue),
         gameName: gameName[0].game_name,
+        gameTime: gameTime,
+        endGame: endGame
     });
 
 }));

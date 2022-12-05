@@ -6,6 +6,9 @@ block content
     div#successfulOrder(class="alert alert-success alert-dismissable fade show" style="display: none" role="alert")
       button(type="button" class="close" aria-label="Close" onclick="$('.alert').hide()")
         span(aria-hidden="true") &times;
+    div#failedOrder(class="alert alert-danger alert-dismissable fade show" style="display: none" role="alert")
+      button(type="button" class="close" aria-label="Close" onclick="$('.alert').hide()")
+        span(aria-hidden="true") &times;
     if error 
       p= error 
     else if symbol
